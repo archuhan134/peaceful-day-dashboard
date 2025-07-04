@@ -29,11 +29,11 @@ const AppHeader = () => {
   };
 
   return (
-    <div className="mb-6 lg:mb-8">
-      <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-wellness-sage-dark via-wellness-sky-dark to-wellness-lavender-dark bg-clip-text text-transparent mb-3 tracking-tight">
+    <div className="mb-6 lg:mb-8 text-center px-4">
+      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-wellness-sage-dark via-wellness-sky-dark to-wellness-lavender-dark bg-clip-text text-transparent mb-3 tracking-tight mx-auto max-w-4xl">
         {getPageTitle()}
       </h1>
-      <p className="text-wellness-sage-dark/70 text-base lg:text-lg font-medium">
+      <p className="text-wellness-sage-dark/70 text-sm sm:text-base lg:text-lg font-medium mx-auto max-w-2xl">
         {getPageDescription()}
       </p>
     </div>

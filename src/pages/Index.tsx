@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -87,24 +86,24 @@ const Index = () => {
   const GreetingIcon = greeting.icon;
 
   return (
-    <div className="space-y-6 lg:space-y-8 animate-fade-in">
+    <div className="space-y-6 lg:space-y-8 animate-fade-in relative">
       <AppHeader />
 
       {/* Welcome Section */}
-      <div className="text-center space-y-4 mb-8">
+      <div className="text-center space-y-4 mb-8 px-4">
         <div className="flex items-center justify-center gap-3 mb-4">
           <GreetingIcon className="h-8 w-8 text-wellness-peach animate-pulse" />
-          <h2 className="text-2xl lg:text-3xl font-poppins font-bold text-wellness-sage-dark">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-poppins font-bold text-wellness-sage-dark">
             {greeting.text}!
           </h2>
         </div>
-        <p className="text-lg text-wellness-sage-dark/80 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-base lg:text-lg text-wellness-sage-dark/80 max-w-2xl mx-auto leading-relaxed">
           Ready to make today amazing? Let's check in on your wellness journey ✨
         </p>
       </div>
 
-      {/* Quick Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+      {/* Quick Stats Grid - Added relative positioning */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 relative z-10">
         <div className="relative">
           <Card 
             className="glass-morphism border-wellness-sage/30 hover:shadow-xl transition-all duration-300 cursor-pointer group hover:scale-105 hover:border-wellness-sage/50"

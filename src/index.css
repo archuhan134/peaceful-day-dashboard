@@ -1,3 +1,5 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -39,20 +41,23 @@ All colors MUST be HSL.
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Wellness Color Palette */
+    --wellness-sage: 120 25% 75%;
+    --wellness-sage-dark: 120 30% 45%;
+    --wellness-sky: 200 50% 80%;
+    --wellness-sky-dark: 200 55% 50%;
+    --wellness-lavender: 280 30% 75%;
+    --wellness-lavender-dark: 280 35% 55%;
+    --wellness-peach: 15 50% 80%;
+    --wellness-peach-dark: 15 55% 60%;
   }
 
   .dark {
@@ -100,6 +105,13 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-gradient-to-br from-wellness-sage/5 via-wellness-sky/5 to-wellness-lavender/5 text-foreground min-h-screen;
+  }
+}
+
+/* Glass morphism effect */
+@layer components {
+  .glass-morphism {
+    @apply backdrop-blur-sm bg-white/80 border border-white/20;
   }
 }

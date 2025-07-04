@@ -6,13 +6,13 @@ const AppHeader = () => {
   
   const getPageTitle = () => {
     switch (location.pathname) {
-      case "/": return "Dashboard";
+      case "/": return "Daily Life Routine";
       case "/habits": return "Daily Habits";
       case "/planning": return "Daily Planning";
       case "/routines": return "Routines";
       case "/mood": return "Mood Journal";
       case "/reminders": return "Reminders";
-      default: return "ZenFlow";
+      default: return "Daily Life Routine";
     }
   };
 
@@ -30,10 +30,10 @@ const AppHeader = () => {
 
   return (
     <div className="mb-6 lg:mb-8">
-      <h1 className="text-2xl lg:text-3xl font-poppins font-bold text-wellness-sage-dark mb-2">
+      <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-wellness-sage-dark via-wellness-sky-dark to-wellness-lavender-dark bg-clip-text text-transparent mb-3 tracking-tight">
         {getPageTitle()}
       </h1>
-      <p className="text-wellness-sage-dark/70 text-sm lg:text-base">
+      <p className="text-wellness-sage-dark/70 text-base lg:text-lg font-medium">
         {getPageDescription()}
       </p>
     </div>

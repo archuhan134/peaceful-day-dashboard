@@ -10,7 +10,7 @@ import {
   Repeat, 
   Heart, 
   Bell,
-  Menu,
+  Sparkles,
   X
 } from "lucide-react";
 
@@ -31,22 +31,30 @@ const Navigation = () => {
 
   return (
     <>
-      {/* Mobile Menu Button */}
+      {/* Mobile Menu Button - Beautiful Floating Design */}
       <div className="lg:hidden fixed top-4 left-4 z-50">
         <Button
           variant="outline"
           size="sm"
           onClick={() => setIsOpen(!isOpen)}
-          className="glass-morphism border-wellness-sage/20"
+          className="glass-morphism border-wellness-sage/30 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 bg-white/90 backdrop-blur-md rounded-xl p-3"
         >
-          {isOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+          {isOpen ? (
+            <X className="h-5 w-5 text-wellness-sage-dark" />
+          ) : (
+            <div className="flex flex-col gap-1">
+              <div className="w-5 h-0.5 bg-wellness-sage-dark rounded-full transition-all duration-200"></div>
+              <div className="w-4 h-0.5 bg-wellness-sage-dark rounded-full transition-all duration-200"></div>
+              <div className="w-3 h-0.5 bg-wellness-sage-dark rounded-full transition-all duration-200"></div>
+            </div>
+          )}
         </Button>
       </div>
 
       {/* Mobile Overlay */}
       {isOpen && (
         <div 
-          className="lg:hidden fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+          className="lg:hidden fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-opacity duration-300"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -60,14 +68,17 @@ const Navigation = () => {
         <div className="p-6">
           {/* App Logo and Name */}
           <div className="flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-wellness-sage to-wellness-sky flex items-center justify-center">
-              <Heart className="h-6 w-6 text-white" />
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-wellness-sage via-wellness-sky to-wellness-lavender flex items-center justify-center shadow-lg">
+              <Sparkles className="h-7 w-7 text-white animate-pulse" />
             </div>
             <div>
-              <h1 className="text-xl font-poppins font-bold text-wellness-sage-dark">
-                ZenFlow
+              <h1 className="text-xl font-bold text-wellness-sage-dark leading-tight">
+                Daily Life
               </h1>
-              <p className="text-xs text-wellness-sage-dark/60">Your Wellness Companion</p>
+              <h2 className="text-lg font-semibold text-wellness-sky-dark -mt-1">
+                Routine
+              </h2>
+              <p className="text-xs text-wellness-sage-dark/60 mt-0.5">Your Wellness Journey</p>
             </div>
           </div>
 
@@ -81,14 +92,18 @@ const Navigation = () => {
                   to={item.path}
                   onClick={() => setIsOpen(false)}
                   className={`
-                    flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
+                    flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group
                     ${isActive(item.path) 
-                      ? 'bg-wellness-sage/20 text-wellness-sage-dark border-l-4 border-wellness-sage' 
-                      : 'text-wellness-sage-dark/70 hover:bg-wellness-sage/10 hover:text-wellness-sage-dark'
+                      ? 'bg-gradient-to-r from-wellness-sage/20 to-wellness-sky/20 text-wellness-sage-dark border-l-4 border-wellness-sage shadow-md' 
+                      : 'text-wellness-sage-dark/70 hover:bg-gradient-to-r hover:from-wellness-sage/10 hover:to-wellness-sky/10 hover:text-wellness-sage-dark hover:shadow-sm'
                     }
                   `}
                 >
-                  <Icon className={`h-5 w-5 ${isActive(item.path) ? 'text-wellness-sage' : ''}`} />
+                  <Icon className={`h-5 w-5 transition-all duration-200 ${
+                    isActive(item.path) 
+                      ? 'text-wellness-sage' 
+                      : 'group-hover:text-wellness-sage group-hover:scale-110'
+                  }`} />
                   <span className="font-medium">{item.name}</span>
                 </Link>
               );

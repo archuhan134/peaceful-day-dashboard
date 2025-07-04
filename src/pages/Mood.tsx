@@ -1,175 +1,206 @@
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Heart, Smile } from "lucide-react";
+import { Heart, Smile, Sparkles, Sun } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import AppHeader from "@/components/AppHeader";
 
 const Mood = () => {
-  const navigate = useNavigate();
-  
   const [todayMood, setTodayMood] = useLocalStorage("todayMood", "😊");
   const [wellnessRating, setWellnessRating] = useLocalStorage("wellnessRating", 0);
   const [wellnessReflection, setWellnessReflection] = useLocalStorage("wellnessReflection", "");
   const [gratitude, setGratitude] = useLocalStorage("gratitude", "");
 
   const moods = [
-    { emoji: "😊", label: "Happy", color: "wellness-peach" },
-    { emoji: "😌", label: "Calm", color: "wellness-sky" },
-    { emoji: "😴", label: "Sleepy", color: "wellness-lavender" },
-    { emoji: "🤔", label: "Thoughtful", color: "wellness-sage" },
-    { emoji: "😅", label: "Stressed", color: "wellness-peach" },
-    { emoji: "😢", label: "Sad", color: "wellness-sky" },
-    { emoji: "😡", label: "Angry", color: "wellness-lavender" },
-    { emoji: "🤗", label: "Grateful", color: "wellness-sage" },
-    { emoji: "😍", label: "Excited", color: "wellness-peach" },
-    { emoji: "😐", label: "Neutral", color: "wellness-sky" }
+    { emoji: "😊", label: "Happy", color: "wellness-peach", description: "Feeling joyful and content" },
+    { emoji: "😌", label: "Calm", color: "wellness-sky", description: "Peaceful and relaxed" },
+    { emoji: "😴", label: "Sleepy", color: "wellness-lavender", description: "Tired but cozy" },
+    { emoji: "🤔", label: "Thoughtful", color: "wellness-sage", description: "Reflective and contemplative" },
+    { emoji: "😅", label: "Stressed", color: "wellness-peach", description: "Feeling overwhelmed" },
+    { emoji: "😢", label: "Sad", color: "wellness-sky", description: "Down but healing" },
+    { emoji: "😡", label: "Angry", color: "wellness-lavender", description: "Frustrated or upset" },
+    { emoji: "🤗", label: "Grateful", color: "wellness-sage", description: "Appreciative and thankful" },
+    { emoji: "😍", label: "Excited", color: "wellness-peach", description: "Energetic and enthusiastic" },
+    { emoji: "😐", label: "Neutral", color: "wellness-sky", description: "Balanced and steady" }
   ];
 
   const handleWellnessRating = (rating: number) => {
     setWellnessRating(rating);
   };
 
+  const getRatingMessage = (rating: number) => {
+    const messages = [
+      "",
+      "Take it easy today 💜",
+      "Be gentle with yourself 🌱", 
+      "You're doing okay 👍",
+      "Feeling pretty good! ⭐",
+      "Amazing energy today! ✨"
+    ];
+    return messages[rating] || "";
+  };
+
+  const selectedMood = moods.find(m => m.emoji === todayMood) || moods[0];
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6 p-4">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/')}
-          className="hover:bg-wellness-lavender/20"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Dashboard
-        </Button>
-        <div>
-          <h1 className="text-3xl font-poppins font-bold text-wellness-lavender-dark">
-            Mood Journal
-          </h1>
-          <p className="text-wellness-lavender-dark/70">
-            Check in with yourself and track your emotional wellness
-          </p>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <AppHeader />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Mood Selection */}
-        <Card className="glass-morphism border-wellness-sage/20">
+        <Card className="glass-morphism border-wellness-sage/30 hover:shadow-xl transition-all duration-300">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-wellness-sage-dark">
-              <Smile className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-3 text-wellness-sage-dark">
+              <div className="p-2 rounded-lg bg-wellness-sage/20">
+                <Smile className="h-5 w-5" />
+              </div>
               How are you feeling right now?
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-5 gap-3">
+            <div className="grid grid-cols-5 gap-3 mb-6">
               {moods.map((mood) => (
                 <button
                   key={mood.emoji}
                   onClick={() => setTodayMood(mood.emoji)}
-                  className={`p-3 rounded-lg hover:bg-wellness-sage/20 transition-all text-center ${
-                    todayMood === mood.emoji ? 'bg-wellness-sage/30 ring-2 ring-wellness-sage' : ''
+                  className={`p-4 rounded-xl hover:scale-105 transition-all text-center group ${
+                    todayMood === mood.emoji ? 'bg-wellness-sage/30 ring-2 ring-wellness-sage shadow-lg' : 'hover:bg-wellness-sage/10'
                   }`}
-                  title={mood.label}
+                  title={mood.description}
                 >
-                  <div className="text-2xl mb-1">{mood.emoji}</div>
-                  <div className="text-xs text-wellness-sage-dark/70">{mood.label}</div>
+                  <div className="text-3xl mb-2 group-hover:scale-110 transition-transform duration-200">{mood.emoji}</div>
+                  <div className="text-xs text-wellness-sage-dark/70 font-medium">{mood.label}</div>
                 </button>
               ))}
             </div>
+            {selectedMood && (
+              <div className="text-center p-4 bg-wellness-sage/10 rounded-xl">
+                <p className="text-wellness-sage-dark font-medium mb-1">
+                  You're feeling {selectedMood.label.toLowerCase()} today
+                </p>
+                <p className="text-sm text-wellness-sage-dark/70">
+                  {selectedMood.description}
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
         {/* Wellness Rating */}
-        <Card className="glass-morphism border-wellness-lavender/20">
+        <Card className="glass-morphism border-wellness-lavender/30 hover:shadow-xl transition-all duration-300">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-wellness-lavender-dark">
-              <Heart className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-3 text-wellness-lavender-dark">
+              <div className="p-2 rounded-lg bg-wellness-lavender/20">
+                <Heart className="h-5 w-5" />
+              </div>
               Wellness Rating
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             <div className="text-center space-y-4">
               <p className="text-wellness-lavender-dark/70">Rate your overall wellness today</p>
-              <div className="flex justify-center gap-2">
+              <div className="flex justify-center gap-3">
                 {[1, 2, 3, 4, 5].map((rating) => (
                   <button
                     key={rating}
                     onClick={() => handleWellnessRating(rating)}
-                    className={`w-8 h-8 rounded-full transition-all hover:scale-110 ${
+                    className={`w-10 h-10 rounded-full transition-all hover:scale-110 border-2 ${
                       rating <= wellnessRating
-                        ? "bg-wellness-lavender shadow-lg"
-                        : "bg-wellness-lavender/20 hover:bg-wellness-lavender/40"
+                        ? "bg-wellness-lavender border-wellness-lavender shadow-lg"
+                        : "bg-wellness-lavender/20 border-wellness-lavender/30 hover:bg-wellness-lavender/40"
                     }`}
-                  />
+                  >
+                    <span className="text-white font-bold">{rating}</span>
+                  </button>
                 ))}
               </div>
-              <p className="text-sm text-wellness-lavender-dark/50">
-                {wellnessRating > 0 && `${wellnessRating}/5`}
-              </p>
+              {wellnessRating > 0 && (
+                <div className="space-y-2">
+                  <p className="text-lg font-medium text-wellness-lavender-dark">
+                    {wellnessRating}/5
+                  </p>
+                  <p className="text-sm text-wellness-lavender-dark/70">
+                    {getRatingMessage(wellnessRating)}
+                  </p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Reflection */}
-      <Card className="glass-morphism border-wellness-sky/20">
+      <Card className="glass-morphism border-wellness-sky/30 hover:shadow-xl transition-all duration-300">
         <CardHeader>
-          <CardTitle className="text-wellness-sky-dark">
+          <CardTitle className="flex items-center gap-3 text-wellness-sky-dark">
+            <div className="p-2 rounded-lg bg-wellness-sky/20">
+              <Sun className="h-5 w-5" />
+            </div>
             Daily Reflection
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-wellness-sky-dark mb-2">
+            <label className="block text-sm font-medium text-wellness-sky-dark mb-3">
               What's on your mind today?
             </label>
             <Textarea
-              placeholder="Take a moment to reflect on your thoughts, feelings, and experiences..."
+              placeholder="Take a moment to reflect on your thoughts, feelings, and experiences. What's been weighing on your mind? What brought you joy today?"
               value={wellnessReflection}
               onChange={(e) => setWellnessReflection(e.target.value)}
-              className="min-h-[120px] resize-none border-wellness-sky/20"
+              className="min-h-[140px] resize-none border-wellness-sky/30 focus:border-wellness-sky/50 transition-colors"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-wellness-sky-dark mb-2">
+            <label className="block text-sm font-medium text-wellness-sky-dark mb-3">
               What are you grateful for today?
             </label>
             <Textarea
-              placeholder="List three things you're grateful for today..."
+              placeholder="List three things you're grateful for today. They can be big or small - every blessing counts!"
               value={gratitude}
               onChange={(e) => setGratitude(e.target.value)}
-              className="min-h-[80px] resize-none border-wellness-sky/20"
+              className="min-h-[100px] resize-none border-wellness-sky/30 focus:border-wellness-sky/50 transition-colors"
             />
           </div>
         </CardContent>
       </Card>
 
-      {/* Mood Tips */}
-      <Card className="glass-morphism border-wellness-peach/20">
+      {/* Wellness Tips */}
+      <Card className="glass-morphism border-wellness-peach/30 hover:shadow-xl transition-all duration-300">
         <CardHeader>
-          <CardTitle className="text-wellness-peach-dark">
-            Wellness Tips
+          <CardTitle className="flex items-center gap-3 text-wellness-peach-dark">
+            <div className="p-2 rounded-lg bg-wellness-peach/20">
+              <Sparkles className="h-5 w-5" />
+            </div>
+            Wellness Tips for Today
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 rounded-lg bg-wellness-sage/10">
-              <h3 className="font-medium text-wellness-sage-dark mb-2">If you're feeling stressed:</h3>
-              <ul className="text-sm text-wellness-sage-dark/70 space-y-1">
-                <li>• Take 5 deep breaths</li>
-                <li>• Go for a short walk</li>
-                <li>• Practice mindfulness</li>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-6 rounded-xl bg-wellness-sage/10 border border-wellness-sage/20 hover:border-wellness-sage/30 transition-colors">
+              <h3 className="font-semibold text-wellness-sage-dark mb-3 flex items-center gap-2">
+                <span className="text-lg">🧘‍♀️</span>
+                If you're feeling stressed:
+              </h3>
+              <ul className="text-sm text-wellness-sage-dark/80 space-y-2 leading-relaxed">
+                <li>• Take 5 deep, mindful breaths</li>
+                <li>• Go for a gentle walk outside</li>
+                <li>• Practice a 5-minute meditation</li>
+                <li>• Listen to calming music</li>
               </ul>
             </div>
-            <div className="p-4 rounded-lg bg-wellness-sky/10">
-              <h3 className="font-medium text-wellness-sky-dark mb-2">If you're feeling low:</h3>
-              <ul className="text-sm text-wellness-sky-dark/70 space-y-1">
-                <li>• Reach out to a friend</li>
-                <li>• Do something you enjoy</li>
+            <div className="p-6 rounded-xl bg-wellness-sky/10 border border-wellness-sky/20 hover:border-wellness-sky/30 transition-colors">
+              <h3 className="font-semibold text-wellness-sky-dark mb-3 flex items-center gap-2">
+                <span className="text-lg">💙</span>
+                If you're feeling low:
+              </h3>
+              <ul className="text-sm text-wellness-sky-dark/80 space-y-2 leading-relaxed">
+                <li>• Reach out to someone you trust</li>
+                <li>• Do something creative you enjoy</li>
                 <li>• Practice self-compassion</li>
+                <li>• Remember: this feeling will pass</li>
               </ul>
             </div>
           </div>

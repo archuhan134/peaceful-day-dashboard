@@ -1,15 +1,15 @@
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Plus, List, Calendar } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Plus, List, Calendar, CheckCircle, Clock, Sparkles } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import AppHeader from "@/components/AppHeader";
 
 const Planning = () => {
-  const navigate = useNavigate();
   const [newTask, setNewTask] = useState('');
   
   const [tasks, setTasks] = useLocalStorage("tasks", [
@@ -43,49 +43,81 @@ const Planning = () => {
 
   const pendingTasks = tasks.filter(t => !t.completed);
   const completedTasks = tasks.filter(t => t.completed);
+  const completionRate = tasks.length > 0 ? Math.round((completedTasks.length / tasks.length) * 100) : 0;
+
+  const getMotivationalMessage = () => {
+    if (completionRate === 100) return "Perfect day! You've accomplished everything! 🎉";
+    if (completionRate >= 75) return "Fantastic progress! Almost there! 🌟";
+    if (completionRate >= 50) return "You're doing great! Keep the momentum! 💪";
+    if (completionRate >= 25) return "Good start! Every task completed is a win! ✨";
+    return "Let's make today productive! You've got this! 🚀";
+  };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 p-4">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/')}
-          className="hover:bg-wellness-sage/20"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Dashboard
-        </Button>
-        <div>
-          <h1 className="text-3xl font-poppins font-bold text-wellness-sage-dark">
-            Task Planning
-          </h1>
-          <p className="text-wellness-sage-dark/70">
-            Organize your day with mindful planning
-          </p>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <AppHeader />
+
+      {/* Progress Overview */}
+      <Card className="glass-morphism border-wellness-sage/30 hover:shadow-xl transition-all duration-300">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-3 text-wellness-sage-dark">
+            <div className="p-2 rounded-lg bg-wellness-sage/20">
+              <Calendar className="h-5 w-5" />
+            </div>
+            Today's Overview
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center space-y-2">
+              <div className="text-3xl font-bold text-wellness-sky-dark">{tasks.length}</div>
+              <p className="text-sm text-wellness-sage-dark/70">Total Tasks</p>
+            </div>
+            <div className="text-center space-y-2">
+              <div className="text-3xl font-bold text-wellness-lavender-dark">{completedTasks.length}</div>
+              <p className="text-sm text-wellness-sage-dark/70">Completed</p>
+            </div>
+            <div className="text-center space-y-2">
+              <div className="text-3xl font-bold text-wellness-peach-dark">{completionRate}%</div>
+              <p className="text-sm text-wellness-sage-dark/70">Progress</p>
+            </div>
+          </div>
+          <div className="mt-6 space-y-2">
+            <div className="w-full bg-wellness-sage/20 rounded-full h-3">
+              <div 
+                className="bg-gradient-to-r from-wellness-sage to-wellness-sage-dark h-3 rounded-full transition-all duration-700"
+                style={{ width: `${completionRate}%` }}
+              />
+            </div>
+            <p className="text-center text-sm text-wellness-sage-dark/70">
+              {getMotivationalMessage()}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Add New Task */}
-      <Card className="glass-morphism border-wellness-sage/20">
+      <Card className="glass-morphism border-wellness-sky/30 hover:shadow-xl transition-all duration-300">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-wellness-sage-dark">
-            <Plus className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-3 text-wellness-sky-dark">
+            <div className="p-2 rounded-lg bg-wellness-sky/20">
+              <Plus className="h-5 w-5" />
+            </div>
             Add New Task
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <Input
-              placeholder="What would you like to accomplish?"
+              placeholder="What would you like to accomplish today?"
               value={newTask}
               onChange={(e) => setNewTask(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleAddTask()}
-              className="border-wellness-sage/20"
+              className="border-wellness-sky/30 focus:border-wellness-sky/50 transition-colors"
             />
             <Button 
               onClick={handleAddTask}
-              className="bg-wellness-sage hover:bg-wellness-sage-dark text-white"
+              className="bg-wellness-sky hover:bg-wellness-sky-dark text-white shadow-md hover:shadow-lg transition-all px-6"
             >
               <Plus className="h-4 w-4" />
             </Button>
@@ -96,81 +128,106 @@ const Planning = () => {
       {/* Tasks Lists */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Pending Tasks */}
-        <Card className="glass-morphism border-wellness-sky/20">
+        <Card className="glass-morphism border-wellness-lavender/30 hover:shadow-xl transition-all duration-300">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-wellness-sky-dark">
-              <List className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-3 text-wellness-lavender-dark">
+              <div className="p-2 rounded-lg bg-wellness-lavender/20">
+                <Clock className="h-5 w-5" />
+              </div>
               Pending Tasks ({pendingTasks.length})
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-3 min-h-[300px]">
             {pendingTasks.length > 0 ? (
               pendingTasks.map((task) => (
                 <div
                   key={task.id}
-                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-wellness-sky/10 transition-all"
+                  className="flex items-center gap-3 p-4 rounded-xl hover:bg-wellness-lavender/10 transition-all hover:scale-[1.01] border border-transparent hover:border-wellness-lavender/30"
                 >
                   <Checkbox
                     checked={task.completed}
                     onCheckedChange={() => handleTaskToggle(task.id)}
+                    className="data-[state=checked]:bg-wellness-lavender data-[state=checked]:border-wellness-lavender"
                   />
-                  <span className="flex-1 text-wellness-sky-dark">
+                  <span className="flex-1 text-wellness-lavender-dark font-medium">
                     {task.name}
                   </span>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => handleDeleteTask(task.id)}
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors"
                   >
                     Delete
                   </Button>
                 </div>
               ))
             ) : (
-              <p className="text-wellness-sky-dark/50 text-center py-8">
-                All tasks completed! 🎉
-              </p>
+              <div className="text-center py-12 space-y-4">
+                <CheckCircle className="h-16 w-16 text-wellness-lavender/50 mx-auto" />
+                <div className="space-y-2">
+                  <h3 className="text-lg font-medium text-wellness-lavender-dark">
+                    All tasks completed! 🎉
+                  </h3>
+                  <p className="text-wellness-sage-dark/70">
+                    You're having a productive day!
+                  </p>
+                </div>
+              </div>
             )}
           </CardContent>
         </Card>
 
         {/* Completed Tasks */}
-        <Card className="glass-morphism border-wellness-lavender/20">
+        <Card className="glass-morphism border-wellness-peach/30 hover:shadow-xl transition-all duration-300">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-wellness-lavender-dark">
-              <Calendar className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-3 text-wellness-peach-dark">
+              <div className="p-2 rounded-lg bg-wellness-peach/20">
+                <Sparkles className="h-5 w-5" />
+              </div>
               Completed Tasks ({completedTasks.length})
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-3 min-h-[300px]">
             {completedTasks.length > 0 ? (
               completedTasks.map((task) => (
                 <div
                   key={task.id}
-                  className="flex items-center gap-3 p-3 rounded-lg bg-wellness-lavender/10 opacity-75"
+                  className="flex items-center gap-3 p-4 rounded-xl bg-wellness-peach/10 border border-wellness-peach/20 opacity-90"
                 >
                   <Checkbox
                     checked={task.completed}
                     onCheckedChange={() => handleTaskToggle(task.id)}
+                    className="data-[state=checked]:bg-wellness-peach data-[state=checked]:border-wellness-peach"
                   />
-                  <span className="flex-1 line-through text-wellness-lavender-dark/60">
+                  <span className="flex-1 line-through text-wellness-peach-dark/70 font-medium">
                     {task.name}
                   </span>
+                  <Badge className="bg-wellness-peach/20 text-wellness-peach-dark border-wellness-peach/30">
+                    ✓ Done
+                  </Badge>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => handleDeleteTask(task.id)}
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors"
                   >
                     Delete
                   </Button>
                 </div>
               ))
             ) : (
-              <p className="text-wellness-lavender-dark/50 text-center py-8">
-                No completed tasks yet
-              </p>
+              <div className="text-center py-12 space-y-4">
+                <List className="h-16 w-16 text-wellness-peach/50 mx-auto" />
+                <div className="space-y-2">
+                  <h3 className="text-lg font-medium text-wellness-peach-dark">
+                    No completed tasks yet
+                  </h3>
+                  <p className="text-wellness-sage-dark/70">
+                    Start checking off those tasks! 💪
+                  </p>
+                </div>
+              </div>
             )}
           </CardContent>
         </Card>

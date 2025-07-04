@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Heart, Calendar, List, Target, CheckCircle, Repeat, Bell } from "lucide-react";
+import { Heart, Calendar, List, Target, CheckCircle, Repeat, Bell, Sparkles, Sun, Moon } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
@@ -23,11 +23,11 @@ const Index = () => {
   const [wellnessReflection, setWellnessReflection] = useLocalStorage("wellnessReflection", "");
   
   const [habits] = useLocalStorage("habits", [
-    { id: "1", name: "Morning meditation", completed: false },
-    { id: "2", name: "Drink 8 glasses of water", completed: false },
-    { id: "3", name: "Exercise for 30 minutes", completed: false },
-    { id: "4", name: "Read for 20 minutes", completed: false },
-    { id: "5", name: "Practice gratitude", completed: false }
+    { id: "1", name: "Morning meditation", completed: false, streak: 3 },
+    { id: "2", name: "Drink 8 glasses of water", completed: false, streak: 7 },
+    { id: "3", name: "Exercise for 30 minutes", completed: false, streak: 1 },
+    { id: "4", name: "Read for 20 minutes", completed: false, streak: 5 },
+    { id: "5", name: "Practice gratitude", completed: false, streak: 2 }
   ]);
 
   const [tasks] = useLocalStorage("tasks", [
@@ -38,8 +38,10 @@ const Index = () => {
   ]);
 
   const [routines] = useLocalStorage("routines", [
-    { id: "1", name: "Morning skincare", completed: false },
-    { id: "2", name: "Evening wind-down", completed: false }
+    { id: "1", name: "Morning skincare", completed: false, time: "7:00 AM", type: "morning" },
+    { id: "2", name: "Evening wind-down", completed: false, time: "9:00 PM", type: "evening" },
+    { id: "3", name: "Workout preparation", completed: false, time: "6:00 AM", type: "morning" },
+    { id: "4", name: "Bedtime reading", completed: false, time: "10:00 PM", type: "evening" }
   ]);
 
   const [reminders] = useLocalStorage("reminders", []);
@@ -74,22 +76,46 @@ const Index = () => {
     setWellnessRating(rating);
   };
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return { text: "Good Morning", icon: Sun };
+    if (hour < 18) return { text: "Good Afternoon", icon: Sun };
+    return { text: "Good Evening", icon: Moon };
+  };
+
+  const greeting = getGreeting();
+  const GreetingIcon = greeting.icon;
+
   return (
     <div className="space-y-6 lg:space-y-8 animate-fade-in">
       <AppHeader />
 
+      {/* Welcome Section */}
+      <div className="text-center space-y-4 mb-8">
+        <div className="flex items-center justify-center gap-3 mb-4">
+          <GreetingIcon className="h-8 w-8 text-wellness-peach animate-pulse" />
+          <h2 className="text-2xl lg:text-3xl font-poppins font-bold text-wellness-sage-dark">
+            {greeting.text}!
+          </h2>
+        </div>
+        <p className="text-lg text-wellness-sage-dark/80 max-w-2xl mx-auto leading-relaxed">
+          Ready to make today amazing? Let's check in on your wellness journey ✨
+        </p>
+      </div>
+
       {/* Quick Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
         <div className="relative">
           <Card 
-            className="glass-morphism border-wellness-sage/20 hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-105"
+            className="glass-morphism border-wellness-sage/30 hover:shadow-xl transition-all duration-300 cursor-pointer group hover:scale-105 hover:border-wellness-sage/50"
             onClick={() => setShowMoodSelector(!showMoodSelector)}
           >
             <CardContent className="p-4 lg:p-6 text-center">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <div className="text-2xl lg:text-3xl">{todayMood}</div>
+              <div className="flex items-center justify-center gap-2 mb-3">
+                <div className="text-3xl lg:text-4xl group-hover:scale-110 transition-transform duration-200">{todayMood}</div>
               </div>
-              <p className="text-xs lg:text-sm text-wellness-sage-dark/70">Today's Mood</p>
+              <p className="text-sm lg:text-base font-medium text-wellness-sage-dark">Today's Mood</p>
+              <p className="text-xs text-wellness-sage-dark/60 mt-1">Click to change</p>
             </CardContent>
           </Card>
           <MoodSelector
@@ -101,108 +127,133 @@ const Index = () => {
         </div>
 
         <Card 
-          className="glass-morphism border-wellness-sky/20 hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-105"
+          className="glass-morphism border-wellness-sky/30 hover:shadow-xl transition-all duration-300 cursor-pointer group hover:scale-105 hover:border-wellness-sky/50"
           onClick={() => navigate('/habits')}
         >
           <CardContent className="p-4 lg:p-6 text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <Target className="h-4 w-4 text-wellness-sky-dark" />
-              <div className="text-xl lg:text-2xl font-bold text-wellness-sky-dark">
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <Target className="h-5 w-5 text-wellness-sky-dark group-hover:scale-110 transition-transform duration-200" />
+              <div className="text-2xl lg:text-3xl font-bold text-wellness-sky-dark">
                 {completedHabits}/{totalHabits}
               </div>
             </div>
-            <p className="text-xs lg:text-sm text-wellness-sage-dark/70">Habits Complete</p>
+            <p className="text-sm lg:text-base font-medium text-wellness-sage-dark">Habits Complete</p>
+            <div className="w-full bg-wellness-sky/20 rounded-full h-2 mt-2">
+              <div 
+                className="bg-wellness-sky h-2 rounded-full transition-all duration-500"
+                style={{ width: `${totalHabits > 0 ? (completedHabits / totalHabits) * 100 : 0}%` }}
+              />
+            </div>
           </CardContent>
         </Card>
 
         <Card 
-          className="glass-morphism border-wellness-lavender/20 hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-105"
+          className="glass-morphism border-wellness-lavender/30 hover:shadow-xl transition-all duration-300 cursor-pointer group hover:scale-105 hover:border-wellness-lavender/50"
           onClick={() => navigate('/planning')}
         >
           <CardContent className="p-4 lg:p-6 text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <CheckCircle className="h-4 w-4 text-wellness-lavender-dark" />
-              <div className="text-xl lg:text-2xl font-bold text-wellness-lavender-dark">
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <CheckCircle className="h-5 w-5 text-wellness-lavender-dark group-hover:scale-110 transition-transform duration-200" />
+              <div className="text-2xl lg:text-3xl font-bold text-wellness-lavender-dark">
                 {totalTasks - completedTasks}
               </div>
             </div>
-            <p className="text-xs lg:text-sm text-wellness-sage-dark/70">Tasks Today</p>
+            <p className="text-sm lg:text-base font-medium text-wellness-sage-dark">Tasks Pending</p>
+            <p className="text-xs text-wellness-lavender-dark/70 mt-1">{completedTasks} completed</p>
           </CardContent>
         </Card>
 
         <Card 
-          className="glass-morphism border-wellness-peach/20 hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-105"
+          className="glass-morphism border-wellness-peach/30 hover:shadow-xl transition-all duration-300 cursor-pointer group hover:scale-105 hover:border-wellness-peach/50"
           onClick={() => navigate('/routines')}
         >
           <CardContent className="p-4 lg:p-6 text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <Repeat className="h-4 w-4 text-wellness-peach-dark" />
-              <div className="text-xl lg:text-2xl font-bold text-wellness-peach-dark">
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <Repeat className="h-5 w-5 text-wellness-peach-dark group-hover:scale-110 transition-transform duration-200" />
+              <div className="text-2xl lg:text-3xl font-bold text-wellness-peach-dark">
                 {completedRoutines}
               </div>
             </div>
-            <p className="text-xs lg:text-sm text-wellness-sage-dark/70">Routines Done</p>
+            <p className="text-sm lg:text-base font-medium text-wellness-sage-dark">Routines Done</p>
+            <p className="text-xs text-wellness-peach-dark/70 mt-1">Keep it up!</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Navigation Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card 
-          className="glass-morphism border-wellness-sky/20 hover:shadow-lg transition-all duration-300 cursor-pointer"
+          className="glass-morphism border-wellness-sky/20 hover:shadow-xl transition-all duration-300 cursor-pointer group hover:scale-[1.02]"
           onClick={() => navigate('/habits')}
         >
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-wellness-sky-dark">
-              <Target className="h-5 w-5" />
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-3 text-wellness-sky-dark group-hover:text-wellness-sky">
+              <div className="p-2 rounded-lg bg-wellness-sky/20 group-hover:bg-wellness-sky/30 transition-colors">
+                <Target className="h-5 w-5" />
+              </div>
               Daily Habits
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-wellness-sage-dark/70 mb-4">Track and build healthy habits</p>
-            <Button className="w-full bg-wellness-sky hover:bg-wellness-sky-dark text-white">
-              Manage Habits
+            <p className="text-wellness-sage-dark/70 mb-4 leading-relaxed">
+              Build lasting habits that nurture your mind, body, and soul
+            </p>
+            <Button className="w-full bg-wellness-sky hover:bg-wellness-sky-dark text-white shadow-md hover:shadow-lg transition-all">
+              <Sparkles className="h-4 w-4 mr-2" />
+              Track Habits
             </Button>
           </CardContent>
         </Card>
 
         <Card 
-          className="glass-morphism border-wellness-peach/20 hover:shadow-lg transition-all duration-300 cursor-pointer"
+          className="glass-morphism border-wellness-peach/20 hover:shadow-xl transition-all duration-300 cursor-pointer group hover:scale-[1.02]"
           onClick={() => navigate('/routines')}
         >
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-wellness-peach-dark">
-              <Repeat className="h-5 w-5" />
-              Routines
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-3 text-wellness-peach-dark group-hover:text-wellness-peach">
+              <div className="p-2 rounded-lg bg-wellness-peach/20 group-hover:bg-wellness-peach/30 transition-colors">
+                <Repeat className="h-5 w-5" />
+              </div>
+              Daily Routines
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-wellness-sage-dark/70 mb-4">Morning & evening routines</p>
-            <Button className="w-full bg-wellness-peach hover:bg-wellness-peach-dark text-white">
-              View Routines
+            <p className="text-wellness-sage-dark/70 mb-4 leading-relaxed">
+              Create peaceful morning and evening rituals
+            </p>
+            <Button className="w-full bg-wellness-peach hover:bg-wellness-peach-dark text-white shadow-md hover:shadow-lg transition-all">
+              <Sun className="h-4 w-4 mr-2" />
+              Manage Routines
             </Button>
           </CardContent>
         </Card>
 
         <Card 
-          className="glass-morphism border-wellness-lavender/20 hover:shadow-lg transition-all duration-300 cursor-pointer"
+          className="glass-morphism border-wellness-lavender/20 hover:shadow-xl transition-all duration-300 cursor-pointer group hover:scale-[1.02]"
           onClick={() => navigate('/reminders')}
         >
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-wellness-lavender-dark">
-              <Bell className="h-5 w-5" />
-              Reminders
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-3 text-wellness-lavender-dark group-hover:text-wellness-lavender">
+              <div className="p-2 rounded-lg bg-wellness-lavender/20 group-hover:bg-wellness-lavender/30 transition-colors">
+                <Bell className="h-5 w-5" />
+              </div>
+              Gentle Reminders
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between mb-4">
-              <p className="text-wellness-sage-dark/70">Gentle wellness nudges</p>
-              <Badge className="bg-wellness-lavender text-white">
-                {activeReminders} active
-              </Badge>
+              <p className="text-wellness-sage-dark/70 leading-relaxed">
+                Mindful nudges for your wellness
+              </p>
+              {activeReminders > 0 && (
+                <Badge className="bg-wellness-lavender/20 text-wellness-lavender-dark border-wellness-lavender/30">
+                  {activeReminders} active
+                </Badge>
+              )}
             </div>
-            <Button className="w-full bg-wellness-lavender hover:bg-wellness-lavender-dark text-white">
-              Manage Reminders
+            <Button className="w-full bg-wellness-lavender hover:bg-wellness-lavender-dark text-white shadow-md hover:shadow-lg transition-all">
+              <Bell className="h-4 w-4 mr-2" />
+              Set Reminders
             </Button>
           </CardContent>
         </Card>
@@ -211,48 +262,51 @@ const Index = () => {
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
         {/* Today's Schedule */}
-        <Card className="glass-morphism border-wellness-sage/20 shadow-lg">
+        <Card className="glass-morphism border-wellness-sage/20 shadow-xl hover:shadow-2xl transition-all duration-300">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-wellness-sage-dark">
-              <Calendar className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-3 text-wellness-sage-dark">
+              <div className="p-2 rounded-lg bg-wellness-sage/20">
+                <Calendar className="h-5 w-5" />
+              </div>
               Today's Flow
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3">
             {upcomingTasks.map((task) => (
               <div
                 key={task.id}
-                className={`flex items-center justify-between p-3 rounded-lg transition-all ${
+                className={`flex items-center justify-between p-4 rounded-xl transition-all hover:scale-[1.01] ${
                   task.completed
-                    ? "bg-wellness-sage/10 opacity-75"
-                    : "bg-wellness-sky/10 hover:bg-wellness-sky/20"
+                    ? "bg-wellness-sage/10 opacity-75 border border-wellness-sage/20"
+                    : "bg-wellness-sky/10 hover:bg-wellness-sky/20 border border-transparent hover:border-wellness-sky/30"
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <Checkbox
                     checked={task.completed}
                     onCheckedChange={() => handleUpcomingTaskToggle(task.id)}
+                    className="data-[state=checked]:bg-wellness-sage data-[state=checked]:border-wellness-sage"
                   />
                   <span
-                    className={task.completed ? "line-through text-wellness-sage-dark/60" : "text-wellness-sage-dark"}
+                    className={`font-medium ${task.completed ? "line-through text-wellness-sage-dark/60" : "text-wellness-sage-dark"}`}
                   >
                     {task.task}
                   </span>
                 </div>
                 <Badge
                   variant="outline"
-                  className={
+                  className={`font-medium ${
                     task.completed
-                      ? "border-wellness-sage text-wellness-sage"
-                      : "border-wellness-sky text-wellness-sky-dark"
-                  }
+                      ? "border-wellness-sage text-wellness-sage bg-wellness-sage/10"
+                      : "border-wellness-sky text-wellness-sky-dark bg-wellness-sky/10"
+                  }`}
                 >
                   {task.time}
                 </Badge>
               </div>
             ))}
             <Button 
-              className="w-full mt-4 bg-wellness-sage hover:bg-wellness-sage-dark text-white shadow-sm"
+              className="w-full mt-6 bg-wellness-sage hover:bg-wellness-sage-dark text-white shadow-md hover:shadow-lg transition-all"
               onClick={() => navigate('/planning')}
             >
               <List className="h-4 w-4 mr-2" />
@@ -263,18 +317,20 @@ const Index = () => {
 
         {/* Wellness Check-in */}
         <Card 
-          className="glass-morphism border-wellness-lavender/20 cursor-pointer hover:shadow-lg transition-all duration-300 shadow-lg"
+          className="glass-morphism border-wellness-lavender/20 cursor-pointer hover:shadow-2xl transition-all duration-300 shadow-xl group hover:scale-[1.01]"
           onClick={() => navigate('/mood')}
         >
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-wellness-lavender-dark">
-              <Heart className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-3 text-wellness-lavender-dark group-hover:text-wellness-lavender">
+              <div className="p-2 rounded-lg bg-wellness-lavender/20 group-hover:bg-wellness-lavender/30 transition-colors">
+                <Heart className="h-5 w-5" />
+              </div>
               Wellness Check-in
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="text-center space-y-4">
-              <p className="text-wellness-sage-dark/70">How are you feeling right now?</p>
+              <p className="text-wellness-sage-dark/70 leading-relaxed">How's your energy today?</p>
               <div className="flex justify-center gap-2">
                 {[1, 2, 3, 4, 5].map((rating) => (
                   <button
@@ -283,34 +339,36 @@ const Index = () => {
                       e.stopPropagation();
                       handleWellnessRating(rating);
                     }}
-                    className={`w-4 h-4 rounded-full transition-colors ${
+                    className={`w-5 h-5 rounded-full transition-all hover:scale-110 ${
                       rating <= wellnessRating
-                        ? "bg-wellness-lavender"
-                        : "bg-wellness-lavender/20"
+                        ? "bg-wellness-lavender shadow-md"
+                        : "bg-wellness-lavender/20 hover:bg-wellness-lavender/40"
                     }`}
                   />
                 ))}
               </div>
-              <p className="text-sm text-wellness-sage-dark/50">
-                {wellnessRating > 0 && `${wellnessRating}/5`}
-              </p>
+              {wellnessRating > 0 && (
+                <p className="text-sm text-wellness-lavender-dark font-medium">
+                  {wellnessRating}/5 - {wellnessRating >= 4 ? "Feeling great! ✨" : wellnessRating >= 3 ? "Pretty good 👍" : "Take it easy today 💜"}
+                </p>
+              )}
             </div>
             
             <div className="space-y-3">
               <h4 className="font-medium text-wellness-sage-dark">Quick Reflection</h4>
               <Textarea
-                placeholder="How are you feeling today? What's on your mind?"
+                placeholder="What's bringing you joy today? Any thoughts to capture..."
                 value={wellnessReflection}
                 onChange={(e) => {
                   e.stopPropagation();
                   setWellnessReflection(e.target.value);
                 }}
                 onClick={(e) => e.stopPropagation()}
-                className="min-h-[80px] resize-none border-wellness-lavender/20"
+                className="min-h-[100px] resize-none border-wellness-lavender/20 focus:border-wellness-lavender/50 transition-colors"
               />
             </div>
 
-            <Button className="w-full bg-wellness-lavender hover:bg-wellness-lavender-dark text-white shadow-sm">
+            <Button className="w-full bg-wellness-lavender hover:bg-wellness-lavender-dark text-white shadow-md hover:shadow-lg transition-all">
               <Heart className="h-4 w-4 mr-2" />
               Open Mood Journal
             </Button>
@@ -319,12 +377,15 @@ const Index = () => {
       </div>
 
       {/* Inspirational Quote */}
-      <Card className="glass-morphism border-wellness-peach/20 text-center shadow-lg">
-        <CardContent className="p-6 lg:p-8">
-          <blockquote className="text-lg lg:text-xl font-medium text-wellness-sage-dark mb-4">
+      <Card className="glass-morphism border-wellness-peach/20 text-center shadow-xl hover:shadow-2xl transition-all duration-300">
+        <CardContent className="p-8 lg:p-12">
+          <div className="flex items-center justify-center mb-4">
+            <Sparkles className="h-6 w-6 text-wellness-peach animate-pulse" />
+          </div>
+          <blockquote className="text-xl lg:text-2xl font-medium text-wellness-sage-dark mb-6 leading-relaxed">
             "Peace comes from within. Do not seek it without."
           </blockquote>
-          <cite className="text-wellness-sage-dark/70">— Buddha</cite>
+          <cite className="text-wellness-sage-dark/70 text-lg">— Buddha</cite>
         </CardContent>
       </Card>
     </div>

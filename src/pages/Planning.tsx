@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,18 +20,17 @@ const Planning = () => {
   
   // Wellness tracking states
   const [wellnessRating, setWellnessRating] = useLocalStorage("wellness-rating", 5);
-  const [dailyReflection, setDailyReflection] = useLocalStorage("daily-reflection", "");
-  const [tempReflection, setTempReflection] = useState("");
+  const [dailyReflection, setDailyReflection] = useLocalStorage("daily_reflection", "");
 
-  const [tasks, setTasks] = useLocalStorage("tasks", [
+  const [tasks, setTasks] = useLocalStorage("local_tasks", [
     { id: "1", name: "Review weekly goals", completed: false },
     { id: "2", name: "Team meeting prep", completed: false },
     { id: "3", name: "Grocery shopping", completed: false },
     { id: "4", name: "Call family", completed: false }
   ]);
 
-  const [dailyTasks, setDailyTasks] = useLocalStorage<Task[]>("daily-tasks", []);
-  const [routines, setRoutines] = useLocalStorage<Routine[]>("routines", [
+  const [dailyTasks, setDailyTasks] = useLocalStorage<Task[]>("local_daily_tasks", []);
+  const [routines, setRoutines] = useLocalStorage<Routine[]>("local_routines", [
     {
       id: "1",
       name: "Morning Routine",
@@ -150,11 +149,6 @@ const Planning = () => {
     return acc;
   }, {} as Record<string, Task[]>);
 
-  const handleSaveReflection = () => {
-    setDailyReflection(tempReflection);
-    setTempReflection("");
-  };
-
   const handleWellnessRatingChange = (rating: number) => {
     setWellnessRating(rating);
   };
@@ -197,19 +191,10 @@ const Planning = () => {
             <p className="text-sm text-wellness-sage-dark/70 mb-2">Daily Reflection</p>
             <Textarea
               placeholder="What's on your mind today? Any thoughts or feelings you'd like to capture..."
-              value={tempReflection || dailyReflection}
-              onChange={(e) => setTempReflection(e.target.value)}
+              value={dailyReflection}
+              onChange={(e) => setDailyReflection(e.target.value)}
               className="border-wellness-peach/30 focus:border-wellness-peach/50 min-h-[80px] text-sm"
             />
-            {tempReflection && (
-              <Button 
-                onClick={handleSaveReflection}
-                className="mt-2 bg-wellness-peach hover:bg-wellness-peach-dark text-white text-sm px-4 py-2"
-                size="sm"
-              >
-                Save Reflection
-              </Button>
-            )}
           </div>
         </CardContent>
       </Card>

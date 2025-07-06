@@ -19,7 +19,7 @@ interface Reminder {
 }
 
 const Reminders = () => {
-  const [reminders, setReminders] = useLocalStorage<Reminder[]>("reminders", [
+  const [reminders, setReminders] = useLocalStorage<Reminder[]>("local_reminders", [
     { 
       id: "1", 
       title: "Drink water", 

@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,26 +8,10 @@ import { useLocalStorage } from "@/hooks/useLocalStorage";
 import AppHeader from "@/components/AppHeader";
 
 const Mood = () => {
-  const [wellnessRating, setWellnessRating] = useLocalStorage("wellness-rating", 0);
-  const [wellnessReflection, setWellnessReflection] = useLocalStorage("wellness-reflection", "");
+  const [todayMood, setTodayMood] = useLocalStorage("todayMood", "😊");
+  const [wellnessRating, setWellnessRating] = useLocalStorage("wellnessRating", 0);
+  const [wellnessReflection, setWellnessReflection] = useLocalStorage("wellnessReflection", "");
   const [gratitude, setGratitude] = useLocalStorage("gratitude", "");
-
-  // Initialize mood from localStorage with today's date check
-  const [todayMood, setTodayMood] = useState(() => {
-    try {
-      const savedMoodData = localStorage.getItem("mood_journal");
-      if (savedMoodData) {
-        const moodData = JSON.parse(savedMoodData);
-        const today = new Date().toISOString().split('T')[0];
-        if (moodData.date === today) {
-          return moodData.mood;
-        }
-      }
-    } catch (error) {
-      console.error("Error loading mood data:", error);
-    }
-    return "😊";
-  });
 
   const moods = [
     { emoji: "😊", label: "Happy", color: "wellness-peach", description: "Feeling joyful and content" },
@@ -40,20 +25,6 @@ const Mood = () => {
     { emoji: "😍", label: "Excited", color: "wellness-peach", description: "Energetic and enthusiastic" },
     { emoji: "😐", label: "Neutral", color: "wellness-sky", description: "Balanced and steady" }
   ];
-
-  const handleMoodSelect = (moodEmoji: string) => {
-    const selectedMoodData = moods.find(m => m.emoji === moodEmoji);
-    const today = new Date().toISOString().split('T')[0];
-    
-    const moodJournalEntry = {
-      mood: moodEmoji,
-      date: today,
-      description: selectedMoodData ? `You're feeling ${selectedMoodData.label.toLowerCase()} today` : ""
-    };
-    
-    setTodayMood(moodEmoji);
-    localStorage.setItem("mood_journal", JSON.stringify(moodJournalEntry));
-  };
 
   const handleWellnessRating = (rating: number) => {
     setWellnessRating(rating);
@@ -89,24 +60,18 @@ const Mood = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
+            <div className="grid grid-cols-5 gap-3 mb-6">
               {moods.map((mood) => (
                 <button
                   key={mood.emoji}
-                  onClick={() => handleMoodSelect(mood.emoji)}
-                  className={`p-3 sm:p-4 rounded-xl hover:scale-105 transition-all text-center group relative ${
-                    todayMood === mood.emoji 
-                      ? 'bg-wellness-sage/30 ring-2 ring-wellness-sage shadow-lg' 
-                      : 'hover:bg-wellness-sage/10'
+                  onClick={() => setTodayMood(mood.emoji)}
+                  className={`p-4 rounded-xl hover:scale-105 transition-all text-center group ${
+                    todayMood === mood.emoji ? 'bg-wellness-sage/30 ring-2 ring-wellness-sage shadow-lg' : 'hover:bg-wellness-sage/10'
                   }`}
                   title={mood.description}
                 >
-                  <div className="text-2xl sm:text-3xl mb-2 group-hover:scale-110 transition-transform duration-200">
-                    {mood.emoji}
-                  </div>
-                  <div className="text-xs text-wellness-sage-dark/70 font-medium">
-                    {mood.label}
-                  </div>
+                  <div className="text-3xl mb-2 group-hover:scale-110 transition-transform duration-200">{mood.emoji}</div>
+                  <div className="text-xs text-wellness-sage-dark/70 font-medium">{mood.label}</div>
                 </button>
               ))}
             </div>

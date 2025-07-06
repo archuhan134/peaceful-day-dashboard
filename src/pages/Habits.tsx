@@ -1,241 +1,182 @@
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Target, Trash2, Trophy, Flame, Star } from "lucide-react";
+import { Plus, Sparkles } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import AppHeader from "@/components/AppHeader";
+import { CreateHabitDialog } from "@/components/habits/CreateHabitDialog";
+import { HabitCard } from "@/components/habits/HabitCard";
+
+interface Habit {
+  id: string;
+  name: string;
+  frequency: string;
+  color: string;
+  completed: boolean[];
+  streak: number;
+}
 
 const Habits = () => {
-  const [habits, setHabits] = useLocalStorage("habits", [
-    { id: "1", name: "Morning meditation", completed: false, streak: 3 },
-    { id: "2", name: "Drink 8 glasses of water", completed: false, streak: 7 },
-    { id: "3", name: "Exercise for 30 minutes", completed: false, streak: 1 },
-    { id: "4", name: "Read for 20 minutes", completed: false, streak: 5 },
-    { id: "5", name: "Practice gratitude", completed: false, streak: 2 }
+  const [habits, setHabits] = useLocalStorage<Habit[]>("habits", [
+    { 
+      id: "1", 
+      name: "Morning Meditation", 
+      frequency: "daily", 
+      color: "sage", 
+      completed: [true, true, false, true, false, false, false], 
+      streak: 12
+    },
+    { 
+      id: "2", 
+      name: "Drink 8 Glasses of Water", 
+      frequency: "daily", 
+      color: "sky", 
+      completed: [true, false, true, true, true, false, false], 
+      streak: 4
+    },
+    { 
+      id: "3", 
+      name: "Evening Reading", 
+      frequency: "5x", 
+      color: "lavender", 
+      completed: [false, true, true, false, true, false, false], 
+      streak: 0
+    },
+    { 
+      id: "4", 
+      name: "Exercise", 
+      frequency: "3x", 
+      color: "peach", 
+      completed: [true, false, false, true, false, true, false], 
+      streak: 3
+    }
   ]);
   
-  const [newHabit, setNewHabit] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
 
-  const handleToggleHabit = (id: string) => {
-    setHabits(prev => prev.map(habit => 
-      habit.id === id 
-        ? { 
-            ...habit, 
-            completed: !habit.completed,
-            streak: !habit.completed ? habit.streak + 1 : Math.max(0, habit.streak - 1)
-          } 
-        : habit
-    ));
-  };
-
-  const handleAddHabit = () => {
-    if (newHabit.trim()) {
-      const newId = Date.now().toString();
-      setHabits(prev => [...prev, {
-        id: newId,
-        name: newHabit.trim(),
-        completed: false,
+  const handleSaveHabit = (habitData: Omit<Habit, 'id' | 'completed' | 'streak'>) => {
+    if (editingHabit) {
+      // Edit existing habit
+      setHabits(prev => prev.map(habit => 
+        habit.id === editingHabit.id 
+          ? { ...habit, ...habitData }
+          : habit
+      ));
+      setEditingHabit(null);
+    } else {
+      // Create new habit
+      const newHabit: Habit = {
+        id: Date.now().toString(),
+        ...habitData,
+        completed: [false, false, false, false, false, false, false],
         streak: 0
-      }]);
-      setNewHabit("");
+      };
+      setHabits(prev => [...prev, newHabit]);
     }
   };
 
-  const handleDeleteHabit = (id: string) => {
-    setHabits(prev => prev.filter(habit => habit.id !== id));
+  const handleToggleDay = (habitId: string, dayIndex: number) => {
+    setHabits(prev => prev.map(habit => {
+      if (habit.id === habitId) {
+        const newCompleted = [...habit.completed];
+        newCompleted[dayIndex] = !newCompleted[dayIndex];
+        
+        // Update streak based on completion
+        let newStreak = habit.streak;
+        if (newCompleted[dayIndex]) {
+          newStreak += 1;
+        } else {
+          newStreak = Math.max(0, newStreak - 1);
+        }
+        
+        return { ...habit, completed: newCompleted, streak: newStreak };
+      }
+      return habit;
+    }));
   };
 
-  const completedCount = habits.filter(h => h.completed).length;
-  const progress = habits.length > 0 ? Math.round((completedCount / habits.length) * 100) : 0;
-  const longestStreak = Math.max(...habits.map(h => h.streak), 0);
-
-  const getStreakIcon = (streak: number) => {
-    if (streak >= 7) return <Trophy className="h-4 w-4 text-yellow-500" />;
-    if (streak >= 3) return <Flame className="h-4 w-4 text-orange-500" />;
-    return <Star className="h-4 w-4 text-wellness-sky" />;
+  const handleMarkToday = (habitId: string) => {
+    const today = new Date().getDay();
+    const mondayIndex = today === 0 ? 6 : today - 1; // Convert to Monday=0 format
+    handleToggleDay(habitId, mondayIndex);
   };
 
-  const getMotivationalMessage = () => {
-    if (progress === 100) return "Amazing! You're crushing it today! 🎉";
-    if (progress >= 75) return "So close to perfection! Keep going! 💪";
-    if (progress >= 50) return "You're doing great! Halfway there! ⭐";
-    if (progress >= 25) return "Good start! Every step counts! 🌱";
-    return "Let's make today count! You've got this! ✨";
+  const handleEditHabit = (habit: Habit) => {
+    setEditingHabit(habit);
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setEditingHabit(null);
   };
 
   return (
-    <div className="space-y-6">
-      <AppHeader />
-      
-      {/* Progress Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="glass-morphism border-wellness-sky/30 hover:shadow-xl transition-all duration-300">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-3 text-wellness-sky-dark">
-              <div className="p-2 rounded-lg bg-wellness-sky/20">
-                <Target className="h-5 w-5" />
-              </div>
-              Today's Progress
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center space-y-4">
-              <div className="text-4xl font-bold text-wellness-sky-dark">
-                {completedCount}/{habits.length}
-              </div>
-              <div className="space-y-2">
-                <div className="w-full bg-wellness-sky/20 rounded-full h-4">
-                  <div 
-                    className="bg-gradient-to-r from-wellness-sky to-wellness-sky-dark h-4 rounded-full transition-all duration-700 shadow-sm"
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
-                <p className="text-sm font-medium text-wellness-sky-dark">{progress}% Complete</p>
-              </div>
-              <p className="text-sm text-wellness-sage-dark/70 leading-relaxed">
-                {getMotivationalMessage()}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+    <div className="min-h-screen bg-gradient-to-br from-wellness-sage/5 via-wellness-sky/5 to-wellness-lavender/5">
+      <div className="container mx-auto px-4 py-6 max-w-4xl">
+        <AppHeader />
+        
+        {/* Header Section */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-wellness-sage-dark via-wellness-sky-dark to-wellness-lavender-dark bg-clip-text text-transparent mb-3">
+            Habit Tracking
+          </h1>
+          <p className="text-wellness-sage-dark/70 text-lg max-w-2xl mx-auto">
+            Build lasting positive habits that nurture your well-being
+          </p>
+        </div>
 
-        <Card className="glass-morphism border-wellness-peach/30 hover:shadow-xl transition-all duration-300">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-3 text-wellness-peach-dark">
-              <div className="p-2 rounded-lg bg-wellness-peach/20">
-                <Flame className="h-5 w-5" />
-              </div>
-              Streak Stats
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center space-y-4">
-              <div className="text-4xl font-bold text-wellness-peach-dark">
-                {longestStreak}
-              </div>
-              <p className="text-sm font-medium text-wellness-peach-dark">Best Streak</p>
-              <p className="text-sm text-wellness-sage-dark/70 leading-relaxed">
-                {longestStreak >= 7 ? "You're on fire! 🔥" : 
-                 longestStreak >= 3 ? "Building momentum! 💪" : 
-                 "Every day is a new beginning! 🌟"}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Add New Habit */}
-      <Card className="glass-morphism border-wellness-sage/30 hover:shadow-xl transition-all duration-300">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-3 text-wellness-sage-dark">
-            <div className="p-2 rounded-lg bg-wellness-sage/20">
-              <Plus className="h-5 w-5" />
-            </div>
-            Create New Habit
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-3">
-            <Input
-              placeholder="What healthy habit would you like to build?"
-              value={newHabit}
-              onChange={(e) => setNewHabit(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleAddHabit()}
-              className="border-wellness-sage/30 focus:border-wellness-sage/50 transition-colors"
+        {/* Habits Grid */}
+        <div className="grid gap-6 mb-8">
+          {habits.map((habit) => (
+            <HabitCard
+              key={habit.id}
+              habit={habit}
+              onToggleDay={handleToggleDay}
+              onMarkToday={handleMarkToday}
+              onEdit={handleEditHabit}
             />
-            <Button 
-              onClick={handleAddHabit}
-              className="bg-wellness-sage hover:bg-wellness-sage-dark text-white shadow-md hover:shadow-lg transition-all px-6"
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+          ))}
+        </div>
 
-      {/* Habits List */}
-      <div className="grid gap-4">
-        {habits.map((habit) => (
-          <Card 
-            key={habit.id} 
-            className={`glass-morphism transition-all duration-300 hover:scale-[1.01] ${
-              habit.completed 
-                ? "border-wellness-sky/40 bg-wellness-sky/5 shadow-lg" 
-                : "border-wellness-sage/30 hover:border-wellness-sage/50 hover:shadow-lg"
-            }`}
-          >
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4 flex-1">
-                  <Checkbox
-                    checked={habit.completed}
-                    onCheckedChange={() => handleToggleHabit(habit.id)}
-                    className="data-[state=checked]:bg-wellness-sky data-[state=checked]:border-wellness-sky scale-110"
-                  />
-                  <div className="flex-1">
-                    <span 
-                      className={`font-medium text-lg ${
-                        habit.completed 
-                          ? "line-through text-wellness-sage-dark/60" 
-                          : "text-wellness-sage-dark"
-                      }`}
-                    >
-                      {habit.name}
-                    </span>
-                    {habit.completed && (
-                      <p className="text-sm text-wellness-sky-dark mt-1">
-                        Great job! ✨ Keep it up tomorrow!
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Badge 
-                    variant="outline" 
-                    className={`border-wellness-peach text-wellness-peach-dark bg-wellness-peach/10 px-3 py-1 ${
-                      habit.streak >= 7 ? 'border-yellow-400 text-yellow-600 bg-yellow-50' :
-                      habit.streak >= 3 ? 'border-orange-400 text-orange-600 bg-orange-50' : ''
-                    }`}
-                  >
-                    <div className="flex items-center gap-1">
-                      {getStreakIcon(habit.streak)}
-                      {habit.streak} day{habit.streak !== 1 ? 's' : ''}
-                    </div>
-                  </Badge>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDeleteHabit(habit.id)}
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
+        {/* Create New Habit Section */}
+        <Card className="glass-morphism border-wellness-sage/30 hover:shadow-xl transition-all duration-300">
+          <CardContent className="p-8 text-center">
+            <div className="space-y-6">
+              <div className="mx-auto w-16 h-16 bg-gradient-to-br from-wellness-sage/20 to-wellness-sky/20 rounded-full flex items-center justify-center mb-4">
+                <Sparkles className="h-8 w-8 text-wellness-sage-dark" />
               </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              
+              <div>
+                <h3 className="text-xl font-semibold text-wellness-sage-dark mb-2">
+                  Ready to Build a New Habit?
+                </h3>
+                <p className="text-wellness-sage-dark/70 max-w-md mx-auto leading-relaxed">
+                  Start small, be consistent, and watch as positive changes compound over time
+                </p>
+              </div>
 
-      {habits.length === 0 && (
-        <Card className="glass-morphism border-wellness-sage/20 text-center">
-          <CardContent className="p-12">
-            <div className="space-y-4">
-              <Target className="h-16 w-16 text-wellness-sage/50 mx-auto" />
-              <h3 className="text-xl font-medium text-wellness-sage-dark">
-                Ready to build amazing habits?
-              </h3>
-              <p className="text-wellness-sage-dark/70 max-w-md mx-auto leading-relaxed">
-                Start small, stay consistent, and watch yourself grow. Every expert was once a beginner! ✨
-              </p>
+              <Button 
+                onClick={() => setIsDialogOpen(true)}
+                className="bg-gradient-to-r from-wellness-sage to-wellness-sky hover:from-wellness-sage-dark hover:to-wellness-sky-dark text-white px-8 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                <Plus className="h-5 w-5 mr-2" />
+                Create New Habit
+              </Button>
             </div>
           </CardContent>
         </Card>
-      )}
+
+        {/* Create/Edit Habit Dialog */}
+        <CreateHabitDialog
+          isOpen={isDialogOpen}
+          onClose={handleCloseDialog}
+          onSave={handleSaveHabit}
+          editingHabit={editingHabit}
+        />
+      </div>
     </div>
   );
 };

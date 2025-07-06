@@ -104,14 +104,48 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  html {
+    /* Prevent zoom on mobile when focusing inputs */
+    font-size: 16px;
+  }
+
   body {
     @apply bg-gradient-to-br from-wellness-sage/5 via-wellness-sky/5 to-wellness-lavender/5 text-foreground min-h-screen;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    /* Prevent horizontal scroll and ensure proper mobile viewport */
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Playfair Display', serif;
     font-weight: 600;
+  }
+
+  /* Ensure consistent font sizes across all mobile devices */
+  @media (max-width: 768px) {
+    h1 {
+      @apply text-2xl;
+    }
+    
+    h2 {
+      @apply text-xl;
+    }
+    
+    h3 {
+      @apply text-lg;
+    }
+    
+    .card-title {
+      @apply text-lg;
+    }
+    
+    /* Prevent inputs from causing zoom on iOS */
+    input, select, textarea {
+      font-size: 16px !important;
+    }
   }
 }
 
@@ -119,5 +153,22 @@ All colors MUST be HSL.
 @layer components {
   .glass-morphism {
     @apply backdrop-blur-sm bg-white/80 border border-white/20;
+  }
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 768px) {
+  .container {
+    @apply px-4;
+  }
+  
+  /* Ensure cards are properly sized on mobile */
+  .card {
+    @apply w-full;
+  }
+  
+  /* Fix dialog sizing on mobile */
+  .dialog-content {
+    @apply mx-4 w-auto max-w-sm;
   }
 }

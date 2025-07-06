@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Plus, List, Calendar, CheckCircle, Clock, Sparkles, Edit, Repeat } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Plus, List, Calendar, CheckCircle, Clock, Sparkles, Edit, Repeat, Heart, Star } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import AppHeader from "@/components/AppHeader";
 import { CreateTaskDialog, Task } from "@/components/planning/CreateTaskDialog";
@@ -17,6 +18,11 @@ const Planning = () => {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [editingRoutine, setEditingRoutine] = useState<Routine | null>(null);
   
+  // Wellness tracking states
+  const [wellnessRating, setWellnessRating] = useLocalStorage("wellness-rating", 5);
+  const [dailyReflection, setDailyReflection] = useLocalStorage("daily-reflection", "");
+  const [tempReflection, setTempReflection] = useState("");
+
   const [tasks, setTasks] = useLocalStorage("tasks", [
     { id: "1", name: "Review weekly goals", completed: false },
     { id: "2", name: "Team meeting prep", completed: false },
@@ -144,43 +150,103 @@ const Planning = () => {
     return acc;
   }, {} as Record<string, Task[]>);
 
+  const handleSaveReflection = () => {
+    setDailyReflection(tempReflection);
+    setTempReflection("");
+  };
+
+  const handleWellnessRatingChange = (rating: number) => {
+    setWellnessRating(rating);
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       <AppHeader />
 
+      {/* Wellness Check-in Section */}
+      <Card className="glass-morphism border-wellness-peach/30 hover:shadow-lg transition-all duration-300">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-wellness-peach-dark">
+            <div className="p-2 rounded-lg bg-wellness-peach/20">
+              <Heart className="h-4 w-4 sm:h-5 sm:w-5" />
+            </div>
+            Wellness Check-in
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <p className="text-sm text-wellness-sage-dark/70 mb-3">How are you feeling today?</p>
+            <div className="flex gap-2 justify-center">
+              {[1, 2, 3, 4, 5].map((rating) => (
+                <button
+                  key={rating}
+                  onClick={() => handleWellnessRatingChange(rating)}
+                  className={`p-2 rounded-lg transition-all ${
+                    wellnessRating >= rating 
+                      ? "text-yellow-500" 
+                      : "text-gray-300 hover:text-yellow-400"
+                  }`}
+                >
+                  <Star className="h-5 w-5 sm:h-6 sm:w-6" fill={wellnessRating >= rating ? "currentColor" : "none"} />
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          <div>
+            <p className="text-sm text-wellness-sage-dark/70 mb-2">Daily Reflection</p>
+            <Textarea
+              placeholder="What's on your mind today? Any thoughts or feelings you'd like to capture..."
+              value={tempReflection || dailyReflection}
+              onChange={(e) => setTempReflection(e.target.value)}
+              className="border-wellness-peach/30 focus:border-wellness-peach/50 min-h-[80px] text-sm"
+            />
+            {tempReflection && (
+              <Button 
+                onClick={handleSaveReflection}
+                className="mt-2 bg-wellness-peach hover:bg-wellness-peach-dark text-white text-sm px-4 py-2"
+                size="sm"
+              >
+                Save Reflection
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Progress Overview */}
-      <Card className="glass-morphism border-wellness-sage/30 hover:shadow-xl transition-all duration-300">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-3 text-wellness-sage-dark">
+      <Card className="glass-morphism border-wellness-sage/30 hover:shadow-lg transition-all duration-300">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-wellness-sage-dark">
             <div className="p-2 rounded-lg bg-wellness-sage/20">
-              <Calendar className="h-5 w-5" />
+              <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
             Today's Overview
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center space-y-2">
-              <div className="text-3xl font-bold text-wellness-sky-dark">{tasks.length}</div>
-              <p className="text-sm text-wellness-sage-dark/70">Total Tasks</p>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="text-center space-y-1">
+              <div className="text-2xl sm:text-3xl font-bold text-wellness-sky-dark">{tasks.length}</div>
+              <p className="text-xs sm:text-sm text-wellness-sage-dark/70">Total Tasks</p>
             </div>
-            <div className="text-center space-y-2">
-              <div className="text-3xl font-bold text-wellness-lavender-dark">{completedTasks.length}</div>
-              <p className="text-sm text-wellness-sage-dark/70">Completed</p>
+            <div className="text-center space-y-1">
+              <div className="text-2xl sm:text-3xl font-bold text-wellness-lavender-dark">{completedTasks.length}</div>
+              <p className="text-xs sm:text-sm text-wellness-sage-dark/70">Completed</p>
             </div>
-            <div className="text-center space-y-2">
-              <div className="text-3xl font-bold text-wellness-peach-dark">{completionRate}%</div>
-              <p className="text-sm text-wellness-sage-dark/70">Progress</p>
+            <div className="text-center space-y-1">
+              <div className="text-2xl sm:text-3xl font-bold text-wellness-peach-dark">{completionRate}%</div>
+              <p className="text-xs sm:text-sm text-wellness-sage-dark/70">Progress</p>
             </div>
           </div>
-          <div className="mt-6 space-y-2">
-            <div className="w-full bg-wellness-sage/20 rounded-full h-3">
+          <div className="mt-4 space-y-2">
+            <div className="w-full bg-wellness-sage/20 rounded-full h-2">
               <div 
-                className="bg-gradient-to-r from-wellness-sage to-wellness-sage-dark h-3 rounded-full transition-all duration-700"
+                className="bg-gradient-to-r from-wellness-sage to-wellness-sage-dark h-2 rounded-full transition-all duration-700"
                 style={{ width: `${completionRate}%` }}
               />
             </div>
-            <p className="text-center text-sm text-wellness-sage-dark/70">
+            <p className="text-center text-xs sm:text-sm text-wellness-sage-dark/70">
               {getMotivationalMessage()}
             </p>
           </div>
@@ -188,35 +254,36 @@ const Planning = () => {
       </Card>
 
       {/* Quick Add Task */}
-      <Card className="glass-morphism border-wellness-sky/30 hover:shadow-xl transition-all duration-300">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-3 text-wellness-sky-dark">
+      <Card className="glass-morphism border-wellness-sky/30 hover:shadow-lg transition-all duration-300">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-wellness-sky-dark">
             <div className="p-2 rounded-lg bg-wellness-sky/20">
-              <Plus className="h-5 w-5" />
+              <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
             Quick Add Task
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <Input
               placeholder="What would you like to accomplish today?"
               value={newTask}
               onChange={(e) => setNewTask(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleAddTask()}
-              className="border-wellness-sky/30 focus:border-wellness-sky/50 transition-colors"
+              className="border-wellness-sky/30 focus:border-wellness-sky/50 transition-colors text-sm flex-1"
             />
             <Button 
               onClick={handleAddTask}
-              className="bg-wellness-sky hover:bg-wellness-sky-dark text-white shadow-md hover:shadow-lg transition-all px-6"
+              className="bg-wellness-sky hover:bg-wellness-sky-dark text-white shadow-md hover:shadow-lg transition-all px-6 text-sm"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-4 w-4 mr-2" />
+              Add
             </Button>
           </div>
-          <div className="mt-4 flex gap-3">
+          <div className="mt-4 flex flex-col sm:flex-row gap-3">
             <Button 
               onClick={() => setIsTaskDialogOpen(true)}
-              className="bg-black hover:bg-gray-800 text-white rounded-xl px-6 py-2"
+              className="bg-black hover:bg-gray-800 text-white rounded-xl px-4 py-2 text-sm"
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Detailed Task
@@ -224,7 +291,7 @@ const Planning = () => {
             <Button 
               onClick={() => setIsRoutineDialogOpen(true)}
               variant="outline"
-              className="border-wellness-lavender/30 text-wellness-lavender-dark hover:bg-wellness-lavender/10 rounded-xl px-6 py-2"
+              className="border-wellness-lavender/30 text-wellness-lavender-dark hover:bg-wellness-lavender/10 rounded-xl px-4 py-2 text-sm"
             >
               <Repeat className="h-4 w-4 mr-2" />
               Create Routine

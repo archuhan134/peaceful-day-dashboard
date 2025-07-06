@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { X } from "lucide-react";
 
 export interface Task {
   id: string;
@@ -71,16 +70,8 @@ export const CreateTaskDialog = ({ isOpen, onClose, onSave, editingTask }: Creat
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md glass-morphism border-wellness-sage/30 rounded-2xl">
-        <DialogHeader className="relative">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="absolute right-0 top-0 h-6 w-6 p-0 hover:bg-wellness-sage/20"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-          <DialogTitle className="text-xl font-semibold text-wellness-sage-dark text-center pr-8">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-semibold text-wellness-sage-dark text-center">
             {editingTask ? "Edit Task" : "Add New Task"}
           </DialogTitle>
         </DialogHeader>
@@ -105,7 +96,7 @@ export const CreateTaskDialog = ({ isOpen, onClose, onSave, editingTask }: Creat
             </Label>
             <Input
               id="time"
-              placeholder="e.g., 9:00 AM"
+              type="time"
               value={time}
               onChange={(e) => setTime(e.target.value)}
               className="border-wellness-sage/30 focus:border-wellness-sage/50 rounded-xl"

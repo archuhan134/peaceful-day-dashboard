@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { User, ChevronRight, Star, CheckCircle } from "lucide-react";
+import { User, ChevronRight, Star, CheckCircle, Settings } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useNavigate } from "react-router-dom";
 import AppHeader from "@/components/AppHeader";
 
 const Profile = () => {
+  const navigate = useNavigate();
   const [selectedMoodDate, setSelectedMoodDate] = useState<Date | undefined>();
   const [selectedTaskDate, setSelectedTaskDate] = useState<Date | undefined>();
   
@@ -115,6 +117,17 @@ const Profile = () => {
         </CardContent>
       </Card>
 
+      {/* Settings Button */}
+      <div className="px-4">
+        <Button
+          onClick={() => navigate('/settings')}
+          className="w-full bg-wellness-sage hover:bg-wellness-sage-dark text-white shadow-md hover:shadow-lg transition-all"
+        >
+          <Settings className="h-4 w-4 mr-2" />
+          Settings
+        </Button>
+      </div>
+
       {/* Streak & Tasks Count */}
       <div className="grid grid-cols-2 gap-4 px-4">
         <Card className="glass-morphism border-wellness-sky/20 text-center">
@@ -137,25 +150,6 @@ const Profile = () => {
           </CardContent>
         </Card>
       </div>
-
-      {/* Explore Tips Banner */}
-      <Card className="glass-morphism border-wellness-lavender/20 mx-4 bg-gradient-to-r from-wellness-sky/10 to-wellness-lavender/10">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-semibold text-wellness-sage-dark mb-1">Explore more</h3>
-              <p className="text-sm text-wellness-sage-dark/70 mb-3">tips about Me+</p>
-              <Button size="sm" className="bg-white/80 text-wellness-sage-dark hover:bg-white/90">
-                Learn more
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
-            </div>
-            <div className="w-16 h-12 bg-wellness-sage/20 rounded-lg flex items-center justify-center">
-              <span className="text-xs">📱</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Mood Stats Calendar */}
       <Card className="glass-morphism border-wellness-sage/20 mx-4">

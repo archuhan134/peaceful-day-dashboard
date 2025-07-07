@@ -1,9 +1,10 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Heart, Calendar, List, Target, CheckCircle, Repeat, Bell, Sparkles, Sun, Moon, Save } from "lucide-react";
+import { Heart, Calendar, List, Target, CheckCircle, Repeat, Bell, Sparkles, Sun, Moon, Save, User } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
@@ -96,7 +97,18 @@ const Index = () => {
 
   return (
     <div className="space-y-6 lg:space-y-8 animate-fade-in relative">
-      <AppHeader />
+      {/* Header with Profile Icon */}
+      <div className="flex justify-between items-center px-4">
+        <AppHeader />
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => navigate('/profile')}
+          className="glass-morphism border-wellness-sage/30 hover:bg-wellness-sage/10"
+        >
+          <User className="h-5 w-5 text-wellness-sage-dark" />
+        </Button>
+      </div>
 
       {/* Welcome Section */}
       <div className="text-center space-y-4 mb-8 px-4">

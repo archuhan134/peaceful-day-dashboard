@@ -12,6 +12,7 @@ import Habits from "./pages/Habits";
 import Routines from "./pages/Routines";
 import Reminders from "./pages/Reminders";
 import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
                   <Route path="/routines" element={<Routines />} />
                   <Route path="/reminders" element={<Reminders />} />
                   <Route path="/profile" element={<Profile />} />
+                  <Route path="/settings" element={<Settings />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </div>

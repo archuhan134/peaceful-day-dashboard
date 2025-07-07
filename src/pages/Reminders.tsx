@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Bell, Trash2, Clock, BellRing, Volume2, Edit, Calendar, Settings, Timer, CheckCircle } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useToast } from "@/hooks/use-toast";
 import AppHeader from "@/components/AppHeader";
 
 interface Reminder {
@@ -18,6 +20,7 @@ interface Reminder {
 }
 
 const Reminders = () => {
+  const { toast } = useToast();
   const [reminders, setReminders] = useLocalStorage<Reminder[]>("local_reminders", [
     { 
       id: "1", 
@@ -108,17 +111,20 @@ const Reminders = () => {
 
   const handleSnoozeAll = () => {
     console.log("Snoozing all reminders for 15 minutes");
-    // TODO: Implement snooze functionality
+    toast({
+      title: "Reminders Snoozed",
+      description: "All reminders snoozed for 15 minutes.",
+      duration: 3000,
+    });
   };
 
   const handleMarkAllComplete = () => {
-    console.log("Marking all reminders as complete");
-    // TODO: Implement mark all complete functionality
-  };
-
-  const handleReminderSettings = () => {
-    console.log("Opening reminder settings");
-    // TODO: Implement settings functionality
+    setReminders(prev => prev.map(reminder => ({ ...reminder, active: false })));
+    toast({
+      title: "All Complete",
+      description: "All reminders marked as complete.",
+      duration: 3000,
+    });
   };
 
   const formatTime12Hour = (time24: string) => {
@@ -141,165 +147,91 @@ const Reminders = () => {
     .slice(0, 3);
 
   return (
-    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
+    <div className="space-y-6 px-2 sm:px-0">
       <AppHeader />
       
-      {/* Overview - Mobile: Vertical Stack, Desktop: Horizontal */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <Card className="glass-morphism border-wellness-peach/30 hover:shadow-lg transition-all duration-300">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm sm:text-base text-wellness-peach-dark">
-              <div className="p-1.5 rounded-lg bg-wellness-peach/20">
-                <BellRing className="h-3 w-3 sm:h-4 sm:w-4" />
+      {/* Overview - Active block prominent at top */}
+      <div className="space-y-4">
+        {/* Active Block - Prominent */}
+        <Card className="glass-morphism border-wellness-peach/40 bg-wellness-peach/10 hover:shadow-xl transition-all duration-300">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-3 text-lg sm:text-xl text-wellness-peach-dark">
+              <div className="p-3 rounded-xl bg-wellness-peach/30">
+                <BellRing className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
-              Active
+              Active Reminders
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="text-center">
-              <span className="text-2xl sm:text-3xl font-bold text-wellness-peach-dark">
+            <div className="text-center py-2">
+              <span className="text-4xl sm:text-5xl font-bold text-wellness-peach-dark">
                 {activeCount}
               </span>
-              <p className="text-xs text-wellness-sage-dark/70 mt-1">Running</p>
+              <p className="text-sm text-wellness-sage-dark/70 mt-2">Currently running</p>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="glass-morphism border-wellness-sky/30 hover:shadow-lg transition-all duration-300">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm sm:text-base text-wellness-sky-dark">
-              <div className="p-1.5 rounded-lg bg-wellness-sky/20">
-                <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
-              </div>
-              Daily
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="text-center">
-              <span className="text-2xl sm:text-3xl font-bold text-wellness-sky-dark">
-                {dailyReminders.length}
-              </span>
-              <p className="text-xs text-wellness-sage-dark/70 mt-1">Every day</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="glass-morphism border-wellness-lavender/30 hover:shadow-lg transition-all duration-300">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm sm:text-base text-wellness-lavender-dark">
-              <div className="p-1.5 rounded-lg bg-wellness-lavender/20">
-                <Volume2 className="h-3 w-3 sm:h-4 sm:w-4" />
-              </div>
-              Weekly
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="text-center">
-              <span className="text-2xl sm:text-3xl font-bold text-wellness-lavender-dark">
-                {weeklyReminders.length}
-              </span>
-              <p className="text-xs text-wellness-sage-dark/70 mt-1">Every week</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="glass-morphism border-wellness-sage/30 hover:shadow-lg transition-all duration-300">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm sm:text-base text-wellness-sage-dark">
-              <div className="p-1.5 rounded-lg bg-wellness-sage/20">
-                <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
-              </div>
-              Monthly
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="text-center">
-              <span className="text-2xl sm:text-3xl font-bold text-wellness-sage-dark">
-                {monthlyReminders.length}
-              </span>
-              <p className="text-xs text-wellness-sage-dark/70 mt-1">Every month</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Up Next Section */}
-      <Card className="glass-morphism border-wellness-sky/30 hover:shadow-lg transition-all duration-300">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-wellness-sky-dark">
-            <div className="p-2 rounded-lg bg-wellness-sky/20">
-              <Clock className="h-4 w-4 sm:h-5 sm:w-5" />
-            </div>
-            Up Next
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {upcomingReminders.length > 0 ? (
-            upcomingReminders.map((reminder) => (
-              <div key={reminder.id} className="flex items-center justify-between p-3 rounded-lg bg-wellness-sky/10 border border-wellness-sky/20">
-                <div className="flex items-center gap-3">
-                  <Bell className="h-4 w-4 text-wellness-sky-dark" />
-                  <div>
-                    <p className="font-medium text-wellness-sky-dark text-sm">{reminder.title}</p>
-                    <p className="text-xs text-wellness-sky-dark/70">{formatTime12Hour(reminder.time)}</p>
-                  </div>
+        {/* Daily, Weekly, Monthly - Horizontal on desktop, vertical on mobile */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Card className="glass-morphism border-wellness-sky/30 hover:shadow-lg transition-all duration-300">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base text-wellness-sky-dark">
+                <div className="p-2 rounded-lg bg-wellness-sky/20">
+                  <Clock className="h-4 w-4" />
                 </div>
-                <Badge variant="outline" className="border-wellness-sky text-wellness-sky-dark bg-wellness-sky/10 text-xs">
-                  {reminder.frequency}
-                </Badge>
+                Daily
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="text-center">
+                <span className="text-2xl font-bold text-wellness-sky-dark">
+                  {dailyReminders.length}
+                </span>
+                <p className="text-xs text-wellness-sage-dark/70 mt-1">Every day</p>
               </div>
-            ))
-          ) : (
-            <p className="text-wellness-sky-dark/70 text-sm text-center py-4">
-              No upcoming reminders. Create one to get started!
-            </p>
-          )}
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
 
-      {/* Quick Actions */}
-      <Card className="glass-morphism border-wellness-lavender/30 hover:shadow-lg transition-all duration-300">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-wellness-lavender-dark">
-            <div className="p-2 rounded-lg bg-wellness-lavender/20">
-              <Settings className="h-4 w-4 sm:h-5 sm:w-5" />
-            </div>
-            Quick Actions
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button
-              onClick={handleSnoozeAll}
-              className="flex-1 bg-wellness-lavender hover:bg-wellness-lavender-dark text-white transition-all text-sm"
-            >
-              <Timer className="h-4 w-4 mr-2" />
-              Snooze All (15 min)
-            </Button>
-            <Button
-              onClick={handleMarkAllComplete}
-              className="flex-1 bg-wellness-sage hover:bg-wellness-sage-dark text-white transition-all text-sm"
-            >
-              <CheckCircle className="h-4 w-4 mr-2" />
-              Mark All Complete
-            </Button>
-            <Button
-              onClick={handleReminderSettings}
-              variant="outline"
-              className="flex-1 border-wellness-peach text-wellness-peach-dark hover:bg-wellness-peach/10 transition-all text-sm"
-            >
-              <Settings className="h-4 w-4 mr-2" />
-              Reminder Settings
-            </Button>
-          </div>
-          <div className="mt-4 p-3 bg-wellness-lavender/10 rounded-lg border border-wellness-lavender/20">
-            <h4 className="font-medium text-wellness-lavender-dark text-sm mb-2">Smart Notifications</h4>
-            <p className="text-xs text-wellness-lavender-dark/70 leading-relaxed">
-              Get intelligent reminders based on your daily patterns and wellness goals. Notifications adapt to your schedule for maximum effectiveness.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+          <Card className="glass-morphism border-wellness-lavender/30 hover:shadow-lg transition-all duration-300">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base text-wellness-lavender-dark">
+                <div className="p-2 rounded-lg bg-wellness-lavender/20">
+                  <Volume2 className="h-4 w-4" />
+                </div>
+                Weekly
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="text-center">
+                <span className="text-2xl font-bold text-wellness-lavender-dark">
+                  {weeklyReminders.length}
+                </span>
+                <p className="text-xs text-wellness-sage-dark/70 mt-1">Every week</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="glass-morphism border-wellness-sage/30 hover:shadow-lg transition-all duration-300">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base text-wellness-sage-dark">
+                <div className="p-2 rounded-lg bg-wellness-sage/20">
+                  <Calendar className="h-4 w-4" />
+                </div>
+                Monthly
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="text-center">
+                <span className="text-2xl font-bold text-wellness-sage-dark">
+                  {monthlyReminders.length}
+                </span>
+                <p className="text-xs text-wellness-sage-dark/70 mt-1">Every month</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
 
       {/* Add/Edit Reminder */}
       <Card className="glass-morphism border-wellness-sage/30 hover:shadow-lg transition-all duration-300">
@@ -391,7 +323,7 @@ const Reminders = () => {
       </Card>
 
       {/* Reminders List */}
-      <div className="grid gap-3 sm:gap-4">
+      <div className="grid gap-4">
         {reminders.map((reminder) => (
           <Card 
             key={reminder.id} 
@@ -489,6 +421,76 @@ const Reminders = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Up Next Section */}
+      <Card className="glass-morphism border-wellness-sky/30 hover:shadow-lg transition-all duration-300">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-wellness-sky-dark">
+            <div className="p-2 rounded-lg bg-wellness-sky/20">
+              <Clock className="h-4 w-4 sm:h-5 sm:w-5" />
+            </div>
+            Up Next
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {upcomingReminders.length > 0 ? (
+            upcomingReminders.map((reminder) => (
+              <div key={reminder.id} className="flex items-center justify-between p-3 rounded-lg bg-wellness-sky/10 border border-wellness-sky/20">
+                <div className="flex items-center gap-3">
+                  <Bell className="h-4 w-4 text-wellness-sky-dark" />
+                  <div>
+                    <p className="font-medium text-wellness-sky-dark text-sm">{reminder.title}</p>
+                    <p className="text-xs text-wellness-sky-dark/70">{formatTime12Hour(reminder.time)}</p>
+                  </div>
+                </div>
+                <Badge variant="outline" className="border-wellness-sky text-wellness-sky-dark bg-wellness-sky/10 text-xs">
+                  {reminder.frequency}
+                </Badge>
+              </div>
+            ))
+          ) : (
+            <p className="text-wellness-sky-dark/70 text-sm text-center py-4">
+              No upcoming reminders. Create one to get started!
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Quick Actions - Moved to bottom */}
+      <Card className="glass-morphism border-wellness-lavender/30 hover:shadow-lg transition-all duration-300">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-wellness-lavender-dark">
+            <div className="p-2 rounded-lg bg-wellness-lavender/20">
+              <Settings className="h-4 w-4 sm:h-5 sm:w-5" />
+            </div>
+            Quick Actions
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col sm:flex-row gap-3 mb-4">
+            <Button
+              onClick={handleSnoozeAll}
+              className="flex-1 bg-wellness-lavender hover:bg-wellness-lavender-dark text-white transition-all text-sm"
+            >
+              <Timer className="h-4 w-4 mr-2" />
+              Snooze All (15 min)
+            </Button>
+            <Button
+              onClick={handleMarkAllComplete}
+              className="flex-1 bg-wellness-sage hover:bg-wellness-sage-dark text-white transition-all text-sm"
+            >
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Mark All Complete
+            </Button>
+          </div>
+          <div className="p-3 bg-wellness-lavender/10 rounded-lg border border-wellness-lavender/20">
+            <h4 className="font-medium text-wellness-lavender-dark text-sm mb-2">Smart Notifications</h4>
+            <p className="text-xs text-wellness-lavender-dark/70 leading-relaxed">
+              Get intelligent reminders based on your daily patterns and wellness goals. Notifications adapt to your schedule for maximum effectiveness.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

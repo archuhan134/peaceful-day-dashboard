@@ -1,11 +1,10 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Repeat, Trash2, Clock, Sun, Moon, Sparkles } from "lucide-react";
+import { Plus, Repeat, Trash2, Clock, Sun, Moon, Sparkles, CloudSun } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import AppHeader from "@/components/AppHeader";
 
@@ -47,7 +46,9 @@ const Routines = () => {
   };
 
   const morningRoutines = routines.filter(r => r.type === "morning");
+  const afternoonRoutines = routines.filter(r => r.type === "afternoon");
   const eveningRoutines = routines.filter(r => r.type === "evening");
+  const nightRoutines = routines.filter(r => r.type === "night");
   const completedCount = routines.filter(r => r.completed).length;
   const completionRate = routines.length > 0 ? Math.round((completedCount / routines.length) * 100) : 0;
 
@@ -74,7 +75,7 @@ const Routines = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="text-center space-y-2">
               <div className="text-4xl font-bold text-wellness-peach-dark">
                 {completedCount}/{routines.length}
@@ -86,8 +87,12 @@ const Routines = () => {
               <p className="text-sm text-wellness-sage-dark/70">Morning</p>
             </div>
             <div className="text-center space-y-2">
-              <div className="text-4xl font-bold text-wellness-lavender-dark">{eveningRoutines.length}</div>
-              <p className="text-sm text-wellness-sage-dark/70">Evening</p>
+              <div className="text-4xl font-bold text-wellness-sage-dark">{afternoonRoutines.length}</div>
+              <p className="text-sm text-wellness-sage-dark/70">Afternoon</p>
+            </div>
+            <div className="text-center space-y-2">
+              <div className="text-4xl font-bold text-wellness-lavender-dark">{eveningRoutines.length + nightRoutines.length}</div>
+              <p className="text-sm text-wellness-sage-dark/70">Evening/Night</p>
             </div>
           </div>
           <div className="mt-6 space-y-2">
@@ -130,7 +135,7 @@ const Routines = () => {
                 className="border-wellness-sage/30 focus:border-wellness-sage/50 transition-colors"
               />
             </div>
-            <div className="flex gap-3">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               <Button
                 variant={newType === "morning" ? "default" : "outline"}
                 onClick={() => setNewType("morning")}
@@ -143,6 +148,17 @@ const Routines = () => {
                 Morning
               </Button>
               <Button
+                variant={newType === "afternoon" ? "default" : "outline"}
+                onClick={() => setNewType("afternoon")}
+                className={`${newType === "afternoon" 
+                  ? "bg-wellness-sage hover:bg-wellness-sage-dark text-white" 
+                  : "border-wellness-sage text-wellness-sage-dark hover:bg-wellness-sage/10"
+                } transition-all`}
+              >
+                <CloudSun className="h-4 w-4 mr-2" />
+                Afternoon
+              </Button>
+              <Button
                 variant={newType === "evening" ? "default" : "outline"}
                 onClick={() => setNewType("evening")}
                 className={`${newType === "evening" 
@@ -153,11 +169,25 @@ const Routines = () => {
                 <Moon className="h-4 w-4 mr-2" />
                 Evening
               </Button>
+              <Button
+                variant={newType === "night" ? "default" : "outline"}
+                onClick={() => setNewType("night")}
+                className={`${newType === "night" 
+                  ? "bg-wellness-peach hover:bg-wellness-peach-dark text-white" 
+                  : "border-wellness-peach text-wellness-peach-dark hover:bg-wellness-peach/10"
+                } transition-all`}
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                Night
+              </Button>
+            </div>
+            <div className="flex justify-end">
               <Button 
                 onClick={handleAddRoutine}
-                className="bg-wellness-sage hover:bg-wellness-sage-dark text-white ml-auto shadow-md hover:shadow-lg transition-all px-6"
+                className="bg-wellness-sage hover:bg-wellness-sage-dark text-white shadow-md hover:shadow-lg transition-all px-6"
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-4 w-4 mr-2" />
+                Add Routine
               </Button>
             </div>
           </div>
@@ -236,6 +266,78 @@ const Routines = () => {
         </CardContent>
       </Card>
 
+      {/* Afternoon Routines */}
+      <Card className="glass-morphism border-wellness-sage/30 hover:shadow-xl transition-all duration-300">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-3 text-wellness-sage-dark">
+            <div className="p-2 rounded-lg bg-wellness-sage/20">
+              <CloudSun className="h-5 w-5" />
+            </div>
+            Afternoon Routines ({afternoonRoutines.filter(r => r.completed).length}/{afternoonRoutines.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 min-h-[200px]">
+          {afternoonRoutines.length > 0 ? (
+            afternoonRoutines.map((routine) => (
+              <div 
+                key={routine.id}
+                className={`flex items-center justify-between p-4 rounded-xl transition-all hover:scale-[1.01] ${
+                  routine.completed 
+                    ? "bg-wellness-sage/10 opacity-90 border border-wellness-sage/30" 
+                    : "hover:bg-wellness-sage/10 border border-transparent hover:border-wellness-sage/30"
+                }`}
+              >
+                <div className="flex items-center gap-4 flex-1">
+                  <Checkbox
+                    checked={routine.completed}
+                    onCheckedChange={() => handleToggleRoutine(routine.id)}
+                    className="data-[state=checked]:bg-wellness-sage data-[state=checked]:border-wellness-sage scale-110"
+                  />
+                  <div className="flex-1">
+                    <span 
+                      className={`font-medium text-lg ${
+                        routine.completed 
+                          ? "line-through text-wellness-sage-dark/60" 
+                          : "text-wellness-sage-dark"
+                      }`}
+                    >
+                      {routine.name}
+                    </span>
+                    {routine.completed && (
+                      <p className="text-sm text-wellness-sage-dark/70 mt-1">
+                        Great afternoon routine! 🌞
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Badge 
+                    variant="outline" 
+                    className="border-wellness-sage text-wellness-sage-dark bg-wellness-sage/10 px-3 py-1"
+                  >
+                    <Clock className="h-3 w-3 mr-1" />
+                    {routine.time}
+                  </Badge>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDeleteRoutine(routine.id)}
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-8 space-y-4">
+              <CloudSun className="h-12 w-12 text-wellness-sage/50 mx-auto" />
+              <p className="text-wellness-sage-dark/70">No afternoon routines yet. Perfect time for midday habits!</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Evening Routines */}
       <Card className="glass-morphism border-wellness-lavender/30 hover:shadow-xl transition-all duration-300">
         <CardHeader>
@@ -303,6 +405,78 @@ const Routines = () => {
             <div className="text-center py-8 space-y-4">
               <Moon className="h-12 w-12 text-wellness-lavender/50 mx-auto" />
               <p className="text-wellness-lavender-dark/70">No evening routines yet. End your day peacefully!</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Night Routines */}
+      <Card className="glass-morphism border-wellness-peach/30 hover:shadow-xl transition-all duration-300">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-3 text-wellness-peach-dark">
+            <div className="p-2 rounded-lg bg-wellness-peach/20">
+              <Sparkles className="h-5 w-5" />
+            </div>
+            Night Routines ({nightRoutines.filter(r => r.completed).length}/{nightRoutines.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 min-h-[200px]">
+          {nightRoutines.length > 0 ? (
+            nightRoutines.map((routine) => (
+              <div 
+                key={routine.id}
+                className={`flex items-center justify-between p-4 rounded-xl transition-all hover:scale-[1.01] ${
+                  routine.completed 
+                    ? "bg-wellness-peach/10 opacity-90 border border-wellness-peach/30" 
+                    : "hover:bg-wellness-peach/10 border border-transparent hover:border-wellness-peach/30"
+                }`}
+              >
+                <div className="flex items-center gap-4 flex-1">
+                  <Checkbox
+                    checked={routine.completed}
+                    onCheckedChange={() => handleToggleRoutine(routine.id)}
+                    className="data-[state=checked]:bg-wellness-peach data-[state=checked]:border-wellness-peach scale-110"
+                  />
+                  <div className="flex-1">
+                    <span 
+                      className={`font-medium text-lg ${
+                        routine.completed 
+                          ? "line-through text-wellness-peach-dark/60" 
+                          : "text-wellness-peach-dark"
+                      }`}
+                    >
+                      {routine.name}
+                    </span>
+                    {routine.completed && (
+                      <p className="text-sm text-wellness-peach-dark/70 mt-1">
+                        Perfect end to your day! ✨
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Badge 
+                    variant="outline" 
+                    className="border-wellness-peach text-wellness-peach-dark bg-wellness-peach/10 px-3 py-1"
+                  >
+                    <Clock className="h-3 w-3 mr-1" />
+                    {routine.time}
+                  </Badge>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDeleteRoutine(routine.id)}
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-8 space-y-4">
+              <Sparkles className="h-12 w-12 text-wellness-peach/50 mx-auto" />
+              <p className="text-wellness-peach-dark/70">No night routines yet. Create peaceful late-night habits!</p>
             </div>
           )}
         </CardContent>

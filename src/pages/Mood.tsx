@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -89,22 +90,22 @@ const Mood = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
+            <div className="grid grid-cols-5 gap-2 sm:gap-3 mb-6">
               {moods.map((mood) => (
                 <button
                   key={mood.emoji}
                   onClick={() => handleMoodSelect(mood.emoji)}
-                  className={`p-3 sm:p-4 rounded-xl hover:scale-105 transition-all text-center group relative ${
+                  className={`p-2 sm:p-3 rounded-xl hover:scale-105 transition-all text-center group relative ${
                     todayMood === mood.emoji 
                       ? 'bg-wellness-sage/30 ring-2 ring-wellness-sage shadow-lg' 
                       : 'hover:bg-wellness-sage/10'
                   }`}
                   title={mood.description}
                 >
-                  <div className="text-2xl sm:text-3xl mb-2 group-hover:scale-110 transition-transform duration-200">
+                  <div className="text-lg sm:text-2xl mb-1 group-hover:scale-110 transition-transform duration-200">
                     {mood.emoji}
                   </div>
-                  <div className="text-xs text-wellness-sage-dark/70 font-medium">
+                  <div className="text-[10px] sm:text-xs text-wellness-sage-dark/70 font-medium leading-tight">
                     {mood.label}
                   </div>
                 </button>

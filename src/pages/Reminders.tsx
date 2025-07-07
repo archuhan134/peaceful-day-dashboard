@@ -1,11 +1,10 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Bell, Trash2, Clock, BellRing, Volume2, Edit, Calendar, Settings, Snooze, CheckCircle } from "lucide-react";
+import { Plus, Bell, Trash2, Clock, BellRing, Volume2, Edit, Calendar, Settings, Timer, CheckCircle } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import AppHeader from "@/components/AppHeader";
 
@@ -274,7 +273,7 @@ const Reminders = () => {
               onClick={handleSnoozeAll}
               className="flex-1 bg-wellness-lavender hover:bg-wellness-lavender-dark text-white transition-all text-sm"
             >
-              <Snooze className="h-4 w-4 mr-2" />
+              <Timer className="h-4 w-4 mr-2" />
               Snooze All (15 min)
             </Button>
             <Button

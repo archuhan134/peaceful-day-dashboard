@@ -3,12 +3,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Heart, Calendar, List, Target, CheckCircle, Repeat, Bell, Sparkles, Sun, Moon } from "lucide-react";
+import { Heart, Calendar, List, Target, CheckCircle, Repeat, Bell, Sparkles, Sun, Moon, Save } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { MoodSelector } from "@/components/dashboard/MoodSelector";
 import AppHeader from "@/components/AppHeader";
+import { toast } from "sonner";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -73,6 +74,14 @@ const Index = () => {
 
   const handleWellnessRating = (rating: number) => {
     setWellnessRating(rating);
+  };
+
+  const handleSaveReflection = () => {
+    if (wellnessReflection.trim()) {
+      toast.success("Reflection saved successfully!");
+    } else {
+      toast.error("Please write something before saving");
+    }
   };
 
   const getGreeting = () => {
@@ -365,6 +374,16 @@ const Index = () => {
                 onClick={(e) => e.stopPropagation()}
                 className="min-h-[100px] resize-none border-wellness-lavender/20 focus:border-wellness-lavender/50 transition-colors"
               />
+              <Button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSaveReflection();
+                }}
+                className="w-full bg-wellness-sage hover:bg-wellness-sage-dark text-white shadow-md hover:shadow-lg transition-all"
+              >
+                <Save className="h-4 w-4 mr-2" />
+                Save Reflection
+              </Button>
             </div>
 
             <Button className="w-full bg-wellness-lavender hover:bg-wellness-lavender-dark text-white shadow-md hover:shadow-lg transition-all">

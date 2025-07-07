@@ -5,11 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, List, Calendar, CheckCircle, Clock, Sparkles, Edit, Repeat, Heart, Star } from "lucide-react";
+import { Plus, List, Calendar, CheckCircle, Clock, Sparkles, Edit, Repeat, Heart, Star, Save } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import AppHeader from "@/components/AppHeader";
 import { CreateTaskDialog, Task } from "@/components/planning/CreateTaskDialog";
 import { CreateRoutineDialog, Routine } from "@/components/planning/CreateRoutineDialog";
+import { toast } from "sonner";
 
 const Planning = () => {
   const [newTask, setNewTask] = useState('');
@@ -153,6 +154,14 @@ const Planning = () => {
     setWellnessRating(rating);
   };
 
+  const handleSaveDailyReflection = () => {
+    if (dailyReflection.trim()) {
+      toast.success("Daily reflection saved successfully!");
+    } else {
+      toast.error("Please write something before saving");
+    }
+  };
+
   return (
     <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       <AppHeader />
@@ -195,6 +204,13 @@ const Planning = () => {
               onChange={(e) => setDailyReflection(e.target.value)}
               className="border-wellness-peach/30 focus:border-wellness-peach/50 min-h-[80px] text-sm"
             />
+            <Button 
+              onClick={handleSaveDailyReflection}
+              className="w-full mt-3 bg-wellness-sage hover:bg-wellness-sage-dark text-white shadow-md hover:shadow-lg transition-all"
+            >
+              <Save className="h-4 w-4 mr-2" />
+              Save Reflection
+            </Button>
           </div>
         </CardContent>
       </Card>

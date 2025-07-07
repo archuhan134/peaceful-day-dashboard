@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Bell, Trash2, Clock, BellRing, Volume2, Edit } from "lucide-react";
+import { Plus, Bell, Trash2, Clock, BellRing, Volume2, Edit, Calendar } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import AppHeader from "@/components/AppHeader";
 
@@ -14,7 +14,7 @@ interface Reminder {
   title: string;
   message: string;
   time: string;
-  frequency: "daily" | "weekly";
+  frequency: "daily" | "weekly" | "monthly";
   active: boolean;
 }
 
@@ -49,7 +49,7 @@ const Reminders = () => {
   const [newTitle, setNewTitle] = useState("");
   const [newMessage, setNewMessage] = useState("");
   const [newTime, setNewTime] = useState("");
-  const [newFrequency, setNewFrequency] = useState<"daily" | "weekly">("daily");
+  const [newFrequency, setNewFrequency] = useState<"daily" | "weekly" | "monthly">("daily");
   const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
 
   const handleAddReminder = () => {
@@ -118,13 +118,14 @@ const Reminders = () => {
   const activeCount = reminders.filter(r => r.active).length;
   const dailyReminders = reminders.filter(r => r.frequency === "daily");
   const weeklyReminders = reminders.filter(r => r.frequency === "weekly");
+  const monthlyReminders = reminders.filter(r => r.frequency === "monthly");
 
   return (
     <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       <AppHeader />
       
-      {/* Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+      {/* Overview - Mobile: Vertical Stack, Desktop: Horizontal */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <Card className="glass-morphism border-wellness-peach/30 hover:shadow-lg transition-all duration-300">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-wellness-peach-dark">
@@ -178,6 +179,25 @@ const Reminders = () => {
                 {weeklyReminders.length}
               </span>
               <p className="text-xs sm:text-sm text-wellness-sage-dark/70 mt-2">Every week</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="glass-morphism border-wellness-sage/30 hover:shadow-lg transition-all duration-300">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-wellness-sage-dark">
+              <div className="p-2 rounded-lg bg-wellness-sage/20">
+                <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />
+              </div>
+              Monthly
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center">
+              <span className="text-3xl sm:text-4xl font-bold text-wellness-sage-dark">
+                {monthlyReminders.length}
+              </span>
+              <p className="text-xs sm:text-sm text-wellness-sage-dark/70 mt-2">Every month</p>
             </div>
           </CardContent>
         </Card>
@@ -239,6 +259,17 @@ const Reminders = () => {
               <Volume2 className="h-4 w-4 mr-2" />
               Weekly
             </Button>
+            <Button
+              variant={newFrequency === "monthly" ? "default" : "outline"}
+              onClick={() => setNewFrequency("monthly")}
+              className={`${newFrequency === "monthly" 
+                ? "bg-wellness-sage hover:bg-wellness-sage-dark text-white" 
+                : "border-wellness-sage text-wellness-sage-dark hover:bg-wellness-sage/10"
+              } transition-all text-sm`}
+            >
+              <Calendar className="h-4 w-4 mr-2" />
+              Monthly
+            </Button>
             <div className="flex gap-2 sm:ml-auto">
               {editingReminder && (
                 <Button 
@@ -293,7 +324,11 @@ const Reminders = () => {
                         </Badge>
                         <Badge 
                           variant="outline" 
-                          className={`text-xs ${reminder.active ? "border-wellness-sky text-wellness-sky-dark bg-wellness-sky/10" : "border-gray-300 text-gray-500"}`}
+                          className={`text-xs ${reminder.active ? 
+                            reminder.frequency === "daily" ? "border-wellness-sky text-wellness-sky-dark bg-wellness-sky/10" :
+                            reminder.frequency === "weekly" ? "border-wellness-lavender text-wellness-lavender-dark bg-wellness-lavender/10" :
+                            "border-wellness-sage text-wellness-sage-dark bg-wellness-sage/10"
+                            : "border-gray-300 text-gray-500"}`}
                         >
                           {reminder.frequency}
                         </Badge>

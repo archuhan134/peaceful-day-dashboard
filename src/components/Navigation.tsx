@@ -10,6 +10,7 @@ import {
   Repeat, 
   Heart, 
   Bell,
+  User,
   Sparkles,
   X
 } from "lucide-react";
@@ -25,6 +26,7 @@ const Navigation = () => {
     { name: "Routines", path: "/routines", icon: Repeat },
     { name: "Mood Journal", path: "/mood", icon: Heart },
     { name: "Reminders", path: "/reminders", icon: Bell },
+    { name: "Profile", path: "/profile", icon: User },
   ];
 
   const isActive = (path: string) => location.pathname === path;

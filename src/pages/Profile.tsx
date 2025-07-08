@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,6 +15,7 @@ interface MoodEntry {
   name: string;
   date: string;
   time: string;
+  dateKey: string;
   description?: string;
 }
 
@@ -25,12 +25,41 @@ const Profile = () => {
   const [selectedTaskDate, setSelectedTaskDate] = useState<Date | undefined>();
   const [showMoodHistory, setShowMoodHistory] = useState(false);
   
-  // Local storage for mood and task data
-  const [moodData, setMoodData] = useLocalStorage<Record<string, string>>("moodCalendarData", {});
-  const [moodHistory, setMoodHistory] = useLocalStorage<MoodEntry[]>("moodHistory", []);
+  // Local storage for mood and task data - read from localStorage directly
+  const [moodData, setMoodData] = useState<Record<string, string>>(() => {
+    try {
+      return JSON.parse(localStorage.getItem("moodCalendarData") || "{}");
+    } catch {
+      return {};
+    }
+  });
+  
+  const [moodHistory, setMoodHistory] = useState<MoodEntry[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem("moodHistory") || "[]");
+    } catch {
+      return [];
+    }
+  });
+  
   const [taskData, setTaskData] = useLocalStorage<Record<string, boolean>>("taskCalendarData", {});
   const [dayStreak, setDayStreak] = useLocalStorage("dayStreak", 0);
   const [tasksCompleted, setTasksCompleted] = useLocalStorage("tasksCompleted", 0);
+
+  // Update state when localStorage changes
+  useState(() => {
+    const handleStorageChange = () => {
+      try {
+        setMoodData(JSON.parse(localStorage.getItem("moodCalendarData") || "{}"));
+        setMoodHistory(JSON.parse(localStorage.getItem("moodHistory") || "[]"));
+      } catch (error) {
+        console.error("Error reading mood data:", error);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  });
 
   // Mood options with names
   const moodOptions = [
@@ -66,22 +95,32 @@ const Profile = () => {
       const now = new Date();
       
       // Save mood to calendar data
-      setMoodData(prev => ({
-        ...prev,
+      const updatedMoodData = {
+        ...moodData,
         [dateKey]: mood.emoji
-      }));
+      };
+      setMoodData(updatedMoodData);
+      localStorage.setItem("moodCalendarData", JSON.stringify(updatedMoodData));
 
       // Save detailed mood entry to history
       const newMoodEntry: MoodEntry = {
         id: Date.now().toString(),
         mood: mood.emoji,
         name: mood.name,
-        date: formatDisplayDate(selectedMoodDate),
-        time: formatTime(now),
+        date: selectedMoodDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+        time: now.toLocaleTimeString('en-US', { 
+          hour: 'numeric', 
+          minute: '2-digit',
+          hour12: true 
+        }),
+        dateKey: dateKey,
         description: ""
       };
 
-      setMoodHistory(prev => [newMoodEntry, ...prev]);
+      const updatedHistory = [newMoodEntry, ...moodHistory.filter(entry => entry.dateKey !== dateKey)];
+      setMoodHistory(updatedHistory);
+      localStorage.setItem("moodHistory", JSON.stringify(updatedHistory));
+      
       setSelectedMoodDate(undefined);
     }
   };
@@ -113,11 +152,10 @@ const Profile = () => {
     
     return (
       <div className={`relative w-full h-full flex flex-col items-center justify-center p-1 ${isSelected ? 'bg-wellness-sage/20 rounded-full' : ''}`}>
-        <span className="text-sm">{date.getDate()}</span>
-        {mood && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-lg bg-white/80 rounded-full p-1">{mood}</span>
-          </div>
+        {mood ? (
+          <span className="text-xl">{mood}</span>
+        ) : (
+          <span className="text-sm">{date.getDate()}</span>
         )}
       </div>
     );

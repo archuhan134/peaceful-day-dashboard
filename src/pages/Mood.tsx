@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -44,7 +43,8 @@ const Mood = () => {
 
   const handleMoodSelect = (moodEmoji: string) => {
     const selectedMoodData = moods.find(m => m.emoji === moodEmoji);
-    const today = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
     
     const moodJournalEntry = {
       mood: moodEmoji,
@@ -54,6 +54,30 @@ const Mood = () => {
     
     setTodayMood(moodEmoji);
     localStorage.setItem("mood_journal", JSON.stringify(moodJournalEntry));
+    
+    // Save detailed mood entry to mood history for Profile page
+    const moodEntry = {
+      id: Date.now().toString(),
+      mood: moodEmoji,
+      name: selectedMoodData?.label || "Unknown",
+      date: now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+      time: now.toLocaleTimeString('en-US', { 
+        hour: 'numeric', 
+        minute: '2-digit',
+        hour12: true 
+      }),
+      dateKey: today
+    };
+    
+    // Save to mood history
+    const existingHistory = JSON.parse(localStorage.getItem("moodHistory") || "[]");
+    const updatedHistory = [moodEntry, ...existingHistory.filter((entry: any) => entry.dateKey !== moodEntry.dateKey)];
+    localStorage.setItem("moodHistory", JSON.stringify(updatedHistory));
+    
+    // Save to mood calendar data for Profile page
+    const existingMoodData = JSON.parse(localStorage.getItem("moodCalendarData") || "{}");
+    existingMoodData[today] = moodEmoji;
+    localStorage.setItem("moodCalendarData", JSON.stringify(existingMoodData));
   };
 
   const handleWellnessRating = (rating: number) => {

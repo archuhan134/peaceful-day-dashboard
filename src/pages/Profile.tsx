@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,6 @@ import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useNavigate } from "react-router-dom";
 import { useTranslations } from "@/hooks/useTranslations";
 import AppHeader from "@/components/AppHeader";
-import MoodChart from "@/components/MoodChart";
 
 interface MoodEntry {
   id: string;
@@ -27,7 +27,6 @@ const Profile = () => {
   const [selectedMoodDate, setSelectedMoodDate] = useState<Date | undefined>();
   const [selectedTaskDate, setSelectedTaskDate] = useState<Date | undefined>();
   const [showMoodHistory, setShowMoodHistory] = useState(false);
-  const [showMoodChart, setShowMoodChart] = useState<'weekly' | 'monthly' | null>(null);
   
   // Local storage for mood and task data - read from localStorage directly
   const [moodData, setMoodData] = useState<Record<string, string>>(() => {
@@ -179,31 +178,6 @@ const Profile = () => {
     );
   };
 
-  // Show mood chart view
-  if (showMoodChart) {
-    return (
-      <div className="space-y-6 animate-fade-in">
-        <div className="flex items-center gap-4 px-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setShowMoodChart(null)}
-            className="hover:bg-wellness-sage/10"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-2xl font-bold text-wellness-sage-dark">
-            {showMoodChart === 'weekly' ? t('weeklyView') : t('monthlyView')}
-          </h1>
-        </div>
-
-        <div className="px-4">
-          <MoodChart type={showMoodChart} />
-        </div>
-      </div>
-    );
-  }
-
   if (showMoodHistory) {
     return (
       <div className="space-y-6 animate-fade-in">
@@ -322,33 +296,15 @@ const Profile = () => {
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-wellness-sage-dark">{t('moodStats')}</CardTitle>
-            <div className="flex gap-2">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-wellness-sage-dark/70 text-xs"
-                onClick={() => setShowMoodChart('weekly')}
-              >
-                {t('weeklyView')}
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-wellness-sage-dark/70 text-xs"
-                onClick={() => setShowMoodChart('monthly')}
-              >
-                {t('monthlyView')}
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-wellness-sage-dark/70"
-                onClick={() => setShowMoodHistory(true)}
-              >
-                {t('viewAll')}
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
-            </div>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-wellness-sage-dark/70"
+              onClick={() => setShowMoodHistory(true)}
+            >
+              {t('viewAll')}
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
           </div>
         </CardHeader>
         <CardContent>

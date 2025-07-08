@@ -1,17 +1,20 @@
 
 import { useLocation } from "react-router-dom";
+import { useTranslations } from "@/hooks/useTranslations";
 
 const AppHeader = () => {
   const location = useLocation();
+  const { t } = useTranslations();
   
   const getPageTitle = () => {
     switch (location.pathname) {
       case "/": return "Daily Life Routine";
-      case "/habits": return "Daily Habits";
-      case "/planning": return "Daily Planning";
-      case "/routines": return "Routines";
-      case "/mood": return "Mood Journal";
-      case "/reminders": return "Reminders";
+      case "/habits": return t("habits");
+      case "/planning": return t("planning");
+      case "/routines": return t("routines");
+      case "/mood": return t("mood");
+      case "/reminders": return t("reminders");
+      case "/profile": return t("profile");
       default: return "Daily Life Routine";
     }
   };
@@ -24,6 +27,7 @@ const AppHeader = () => {
       case "/routines": return "Manage your daily routines";
       case "/mood": return "Reflect on your emotional journey";
       case "/reminders": return "Gentle nudges for your wellness";
+      case "/profile": return "Your wellness companion";
       default: return "Your wellness companion";
     }
   };

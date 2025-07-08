@@ -7,9 +7,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { User, ChevronRight, Star, CheckCircle, Settings, ArrowLeft } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useNavigate } from "react-router-dom";
-import { useTranslations } from "@/hooks/useTranslations";
 import AppHeader from "@/components/AppHeader";
-import MoodChart from "@/components/MoodChart";
 
 interface MoodEntry {
   id: string;
@@ -23,11 +21,9 @@ interface MoodEntry {
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { t } = useTranslations();
   const [selectedMoodDate, setSelectedMoodDate] = useState<Date | undefined>();
   const [selectedTaskDate, setSelectedTaskDate] = useState<Date | undefined>();
   const [showMoodHistory, setShowMoodHistory] = useState(false);
-  const [showMoodChart, setShowMoodChart] = useState<'weekly' | 'monthly' | null>(null);
   
   // Local storage for mood and task data - read from localStorage directly
   const [moodData, setMoodData] = useState<Record<string, string>>(() => {
@@ -67,14 +63,14 @@ const Profile = () => {
 
   // Mood options with names
   const moodOptions = [
-    { emoji: "😊", name: t("happy") },
-    { emoji: "😌", name: t("calm") },
-    { emoji: "😰", name: t("stressed") },
-    { emoji: "😞", name: t("sad") },
-    { emoji: "🥳", name: t("excited") },
-    { emoji: "😴", name: t("sleepy") },
-    { emoji: "🤔", name: t("thoughtful") },
-    { emoji: "😇", name: t("neutral") }
+    { emoji: "😊", name: "Happy" },
+    { emoji: "😌", name: "Calm" },
+    { emoji: "😰", name: "Stressed" },
+    { emoji: "😞", name: "Sad" },
+    { emoji: "🥳", name: "Excited" },
+    { emoji: "😴", name: "Tired" },
+    { emoji: "🤔", name: "Thoughtful" },
+    { emoji: "😇", name: "Peaceful" }
   ];
 
   const formatDateKey = (date: Date) => {
@@ -179,31 +175,6 @@ const Profile = () => {
     );
   };
 
-  // Show mood chart view
-  if (showMoodChart) {
-    return (
-      <div className="space-y-6 animate-fade-in">
-        <div className="flex items-center gap-4 px-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setShowMoodChart(null)}
-            className="hover:bg-wellness-sage/10"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-2xl font-bold text-wellness-sage-dark">
-            {showMoodChart === 'weekly' ? t('weeklyView') : t('monthlyView')}
-          </h1>
-        </div>
-
-        <div className="px-4">
-          <MoodChart type={showMoodChart} />
-        </div>
-      </div>
-    );
-  }
-
   if (showMoodHistory) {
     return (
       <div className="space-y-6 animate-fade-in">
@@ -216,14 +187,14 @@ const Profile = () => {
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-2xl font-bold text-wellness-sage-dark">{t('allMoods')}</h1>
+          <h1 className="text-2xl font-bold text-wellness-sage-dark">All Moods</h1>
         </div>
 
         <div className="px-4 space-y-4">
           {moodHistory.length === 0 ? (
             <Card className="glass-morphism border-wellness-sage/20">
               <CardContent className="p-8 text-center">
-                <p className="text-wellness-sage-dark/70">{t('noMoodEntriesYet')}</p>
+                <p className="text-wellness-sage-dark/70">No mood entries yet. Start tracking your moods to see them here!</p>
               </CardContent>
             </Card>
           ) : (
@@ -266,7 +237,7 @@ const Profile = () => {
           </AvatarFallback>
         </Avatar>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-wellness-sage-dark mb-2">{t('profile')}</h1>
+          <h1 className="text-2xl font-bold text-wellness-sage-dark mb-2">Profile</h1>
         </div>
       </div>
 
@@ -275,8 +246,8 @@ const Profile = () => {
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-semibold text-wellness-sage-dark mb-1">{t('signUpOrLogIn')}</h3>
-              <p className="text-sm text-wellness-sage-dark/70">{t('youAreCurrentlyInGuestMode')}</p>
+              <h3 className="font-semibold text-wellness-sage-dark mb-1">Sign up or log in</h3>
+              <p className="text-sm text-wellness-sage-dark/70">You are currently in guest mode</p>
             </div>
             <ChevronRight className="h-5 w-5 text-wellness-sage-dark/50" />
           </div>
@@ -290,7 +261,7 @@ const Profile = () => {
           className="w-full bg-wellness-sage hover:bg-wellness-sage-dark text-white shadow-md hover:shadow-lg transition-all"
         >
           <Settings className="h-4 w-4 mr-2" />
-          {t('settings')}
+          Settings
         </Button>
       </div>
 
@@ -302,7 +273,7 @@ const Profile = () => {
               <span className="text-2xl font-bold text-wellness-sky-dark">{dayStreak}</span>
               <Star className="h-4 w-4 text-wellness-sky fill-wellness-sky" />
             </div>
-            <p className="text-sm text-wellness-sage-dark">{t('dayStreak')}</p>
+            <p className="text-sm text-wellness-sage-dark">day streak</p>
           </CardContent>
         </Card>
 
@@ -312,7 +283,7 @@ const Profile = () => {
               <span className="text-2xl font-bold text-wellness-peach-dark">{tasksCompleted}</span>
               <CheckCircle className="h-4 w-4 text-wellness-peach fill-wellness-peach" />
             </div>
-            <p className="text-sm text-wellness-sage-dark">{t('taskCompleted')}</p>
+            <p className="text-sm text-wellness-sage-dark">task completed</p>
           </CardContent>
         </Card>
       </div>
@@ -321,34 +292,16 @@ const Profile = () => {
       <Card className="glass-morphism border-wellness-sage/20 mx-4">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-wellness-sage-dark">{t('moodStats')}</CardTitle>
-            <div className="flex gap-2">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-wellness-sage-dark/70 text-xs"
-                onClick={() => setShowMoodChart('weekly')}
-              >
-                {t('weeklyView')}
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-wellness-sage-dark/70 text-xs"
-                onClick={() => setShowMoodChart('monthly')}
-              >
-                {t('monthlyView')}
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-wellness-sage-dark/70"
-                onClick={() => setShowMoodHistory(true)}
-              >
-                {t('viewAll')}
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
-            </div>
+            <CardTitle className="text-wellness-sage-dark">Mood Stats</CardTitle>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-wellness-sage-dark/70"
+              onClick={() => setShowMoodHistory(true)}
+            >
+              View All
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -365,7 +318,7 @@ const Profile = () => {
           {selectedMoodDate && (
             <div className="mt-4 p-4 bg-wellness-sage/10 rounded-lg">
               <p className="text-sm font-medium text-wellness-sage-dark mb-3">
-                {t('selectMoodFor')} {selectedMoodDate.toDateString()}:
+                Select mood for {selectedMoodDate.toDateString()}:
               </p>
               <div className="grid grid-cols-4 gap-2">
                 {moodOptions.map((option) => (
@@ -390,9 +343,9 @@ const Profile = () => {
       <Card className="glass-morphism border-wellness-lavender/20 mx-4">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-wellness-lavender-dark">{t('taskStats')}</CardTitle>
+            <CardTitle className="text-wellness-lavender-dark">Task Stats</CardTitle>
             <Button variant="ghost" size="sm" className="text-wellness-lavender-dark/70">
-              {t('viewAll')}
+              View All
               <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           </div>
@@ -421,7 +374,7 @@ const Profile = () => {
                     : 'bg-wellness-sage hover:bg-wellness-sage-dark'
                 } text-white`}
               >
-                {getTaskStatusForDate(selectedTaskDate) ? t('markAsIncomplete') : t('markAsComplete')}
+                {getTaskStatusForDate(selectedTaskDate) ? 'Mark as Incomplete' : 'Mark as Complete'}
               </Button>
             </div>
           )}

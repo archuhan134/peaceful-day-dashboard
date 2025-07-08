@@ -97,14 +97,22 @@ const Index = () => {
 
   return (
     <div className="space-y-6 lg:space-y-8 animate-fade-in relative">
-      {/* Header with Profile Icon */}
-      <div className="flex justify-between items-center px-4">
-        <AppHeader />
+      {/* Header with Profile Icon - Center aligned */}
+      <div className="flex items-center justify-between px-4">
+        <div className="w-10 h-10"></div> {/* Spacer for balance */}
+        <div className="text-center flex-1">
+          <h1 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-wellness-sage-dark via-wellness-sky-dark to-wellness-lavender-dark bg-clip-text text-transparent mb-1">
+            Daily Life Routine
+          </h1>
+          <p className="text-wellness-sage-dark/70 text-sm lg:text-base">
+            Your peaceful wellness overview
+          </p>
+        </div>
         <Button
           variant="outline"
           size="icon"
           onClick={() => navigate('/profile')}
-          className="glass-morphism border-wellness-sage/30 hover:bg-wellness-sage/10"
+          className="glass-morphism border-wellness-sage/30 hover:bg-wellness-sage/10 w-10 h-10 rounded-full"
         >
           <User className="h-5 w-5 text-wellness-sage-dark" />
         </Button>

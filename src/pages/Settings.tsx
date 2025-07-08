@@ -6,31 +6,19 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { ArrowLeft, User, Bell, Globe, RotateCcw, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useTranslations } from "@/hooks/useTranslations";
 import { toast } from "sonner";
 
 const Settings = () => {
   const navigate = useNavigate();
-  const [selectedLanguage, setSelectedLanguage] = useLocalStorage("appLanguage", "English");
+  const { t, currentLanguage, changeLanguage, availableLanguages } = useTranslations();
   const [showLanguageDialog, setShowLanguageDialog] = useState(false);
   const [showResetDialog, setShowResetDialog] = useState(false);
 
-  const languages = [
-    "English",
-    "Hindi",
-    "Spanish",
-    "French", 
-    "German",
-    "Portuguese",
-    "Italian",
-    "Japanese",
-    "Korean",
-    "Chinese"
-  ];
-
   const handleLanguageSelect = (language: string) => {
-    setSelectedLanguage(language);
+    changeLanguage(language);
     setShowLanguageDialog(false);
-    toast.success(`Language changed to ${language}`);
+    toast.success(`Language changed to ${availableLanguages.find(l => l.code === language)?.name}`);
   };
 
   const handleResetRoutine = () => {
@@ -41,15 +29,22 @@ const Settings = () => {
     localStorage.removeItem("reminders");
     localStorage.removeItem("upcomingTasks");
     localStorage.removeItem("moodCalendarData");
+    localStorage.removeItem("moodHistory");
     localStorage.removeItem("taskCalendarData");
     localStorage.removeItem("dayStreak");
     localStorage.removeItem("tasksCompleted");
     localStorage.removeItem("todayMood");
     localStorage.removeItem("wellnessRating");
     localStorage.removeItem("wellnessReflection");
+    localStorage.removeItem("gratitude");
     
     setShowResetDialog(false);
     toast.success("All routine data has been reset successfully!");
+  };
+
+  const getCurrentLanguageName = () => {
+    const lang = availableLanguages.find(l => l.code === currentLanguage);
+    return `${lang?.flag} ${lang?.name}` || 'English';
   };
 
   return (
@@ -64,7 +59,7 @@ const Settings = () => {
         >
           <ArrowLeft className="h-5 w-5 text-wellness-sage-dark" />
         </Button>
-        <h1 className="text-2xl font-bold text-wellness-sage-dark">Settings</h1>
+        <h1 className="text-2xl font-bold text-wellness-sage-dark">{t('settings')}</h1>
       </div>
 
       {/* Account Section */}
@@ -115,7 +110,7 @@ const Settings = () => {
                 <span className="font-medium text-wellness-sage-dark">Change app language</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-wellness-sage-dark/70">{selectedLanguage}</span>
+                <span className="text-sm text-wellness-sage-dark/70">{getCurrentLanguageName()}</span>
                 <ChevronRight className="h-4 w-4 text-wellness-sage-dark/50" />
               </div>
             </div>
@@ -150,18 +145,19 @@ const Settings = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-2 max-h-96 overflow-y-auto">
-            {languages.map((language) => (
+            {availableLanguages.map((language) => (
               <Button
-                key={language}
-                variant={selectedLanguage === language ? "default" : "outline"}
+                key={language.code}
+                variant={currentLanguage === language.code ? "default" : "outline"}
                 className={`justify-start h-12 ${
-                  selectedLanguage === language 
+                  currentLanguage === language.code 
                     ? "bg-wellness-lavender hover:bg-wellness-lavender-dark text-white" 
                     : "hover:bg-wellness-lavender/10"
                 }`}
-                onClick={() => handleLanguageSelect(language)}
+                onClick={() => handleLanguageSelect(language.code)}
               >
-                {language}
+                <span className="mr-3">{language.flag}</span>
+                {language.name}
               </Button>
             ))}
           </div>
@@ -183,7 +179,7 @@ const Settings = () => {
               onClick={() => setShowResetDialog(false)}
               className="flex-1"
             >
-              Cancel
+              {t('cancel')}
             </Button>
             <Button
               onClick={handleResetRoutine}

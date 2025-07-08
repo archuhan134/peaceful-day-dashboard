@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -74,6 +75,7 @@ const Reminders = () => {
         setReminders(prev => [...prev, reminderData]);
       }
       
+      // Reset form
       setNewTitle("");
       setNewMessage("");
       setNewTime("");
@@ -138,102 +140,93 @@ const Reminders = () => {
   const weeklyReminders = reminders.filter(r => r.frequency === "weekly");
   const monthlyReminders = reminders.filter(r => r.frequency === "monthly");
 
+  // Get upcoming reminders (next 3)
   const upcomingReminders = reminders
     .filter(r => r.active)
     .sort((a, b) => a.time.localeCompare(b.time))
     .slice(0, 3);
 
   return (
-    <div className="space-y-4 px-2 sm:px-0">
+    <div className="space-y-6 px-2 sm:px-0">
       <AppHeader />
       
-      {/* Header */}
-      <div className="text-center mb-4">
-        <h1 className="text-2xl sm:text-3xl font-bold text-wellness-sky-dark mb-2">
-          Reminders
-        </h1>
-        <p className="text-wellness-sage-dark/70 text-sm sm:text-base">
-          Gentle nudges for your wellness
-        </p>
-      </div>
-
-      {/* Compact Overview Section - Takes up 50% of screen height */}
-      <div className="space-y-3 max-h-[50vh] overflow-auto">
+      {/* Overview - Active block prominent at top */}
+      <div className="space-y-4">
         {/* Active Block - Prominent */}
-        <Card className="glass-morphism border-wellness-peach/40 bg-wellness-peach/10 hover:shadow-lg transition-all duration-300">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-wellness-peach-dark">
-              <div className="p-2 rounded-lg bg-wellness-peach/30">
-                <BellRing className="h-4 w-4 sm:h-5 sm:w-5" />
+        <Card className="glass-morphism border-wellness-peach/40 bg-wellness-peach/10 hover:shadow-xl transition-all duration-300">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-3 text-lg sm:text-xl text-wellness-peach-dark">
+              <div className="p-3 rounded-xl bg-wellness-peach/30">
+                <BellRing className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
               Active Reminders
             </CardTitle>
           </CardHeader>
-          <CardContent className="pt-0 pb-3">
-            <div className="text-center py-1">
-              <span className="text-3xl sm:text-4xl font-bold text-wellness-peach-dark">
+          <CardContent className="pt-0">
+            <div className="text-center py-2">
+              <span className="text-4xl sm:text-5xl font-bold text-wellness-peach-dark">
                 {activeCount}
               </span>
-              <p className="text-xs text-wellness-sage-dark/70 mt-1">Currently running</p>
+              <p className="text-sm text-wellness-sage-dark/70 mt-2">Currently running</p>
             </div>
           </CardContent>
         </Card>
 
-        {/* Daily, Weekly, Monthly - Responsive Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <Card className="glass-morphism border-wellness-sky/30 hover:shadow-md transition-all duration-300">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-sm sm:text-base text-wellness-sky-dark">
-                <div className="p-1.5 rounded-lg bg-wellness-sky/20">
-                  <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
+        {/* Daily, Weekly, Monthly - Horizontal on desktop, vertical on mobile */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Card className="glass-morphism border-wellness-sky/30 hover:shadow-lg transition-all duration-300">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base text-wellness-sky-dark">
+                <div className="p-2 rounded-lg bg-wellness-sky/20">
+                  <Clock className="h-4 w-4" />
                 </div>
                 Daily
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-0 pb-2">
+            <CardContent className="pt-0">
               <div className="text-center">
-                <span className="text-xl sm:text-2xl font-bold text-wellness-sky-dark">
+                <span className="text-2xl font-bold text-wellness-sky-dark">
                   {dailyReminders.length}
                 </span>
-                <p className="text-xs text-wellness-sage-dark/70 mt-0.5">Every day</p>
+                <p className="text-xs text-wellness-sage-dark/70 mt-1">Every day</p>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="glass-morphism border-wellness-lavender/30 hover:shadow-md transition-all duration-300">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-sm sm:text-base text-wellness-lavender-dark">
-                <div className="p-1.5 rounded-lg bg-wellness-lavender/20">
-                  <Volume2 className="h-3 w-3 sm:h-4 sm:w-4" />
+          <Card className="glass-morphism border-wellness-lavender/30 hover:shadow-lg transition-all duration-300">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base text-wellness-lavender-dark">
+                <div className="p-2 rounded-lg bg-wellness-lavender/20">
+                  <Volume2 className="h-4 w-4" />
                 </div>
                 Weekly
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-0 pb-2">
+            <CardContent className="pt-0">
               <div className="text-center">
-                <span className="text-xl sm:text-2xl font-bold text-wellness-lavender-dark">
+                <span className="text-2xl font-bold text-wellness-lavender-dark">
                   {weeklyReminders.length}
                 </span>
-                <p className="text-xs text-wellness-sage-dark/70 mt-0.5">Every week</p>
+                <p className="text-xs text-wellness-sage-dark/70 mt-1">Every week</p>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="glass-morphism border-wellness-sage/30 hover:shadow-md transition-all duration-300">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-sm sm:text-base text-wellness-sage-dark">
-                <div className="p-1.5 rounded-lg bg-wellness-sage/20">
-                  <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
+          <Card className="glass-morphism border-wellness-sage/30 hover:shadow-lg transition-all duration-300">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base text-wellness-sage-dark">
+                <div className="p-2 rounded-lg bg-wellness-sage/20">
+                  <Calendar className="h-4 w-4" />
                 </div>
                 Monthly
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-0 pb-2">
+            <CardContent className="pt-0">
               <div className="text-center">
-                <span className="text-xl sm:text-2xl font-bold text-wellness-sage-dark">
+                <span className="text-2xl font-bold text-wellness-sage-dark">
                   {monthlyReminders.length}
                 </span>
-                <p className="text-xs text-wellness-sage-dark/70 mt-0.5">Every month</p>
+                <p className="text-xs text-wellness-sage-dark/70 mt-1">Every month</p>
               </div>
             </CardContent>
           </Card>
@@ -242,7 +235,7 @@ const Reminders = () => {
 
       {/* Add/Edit Reminder */}
       <Card className="glass-morphism border-wellness-sage/30 hover:shadow-lg transition-all duration-300">
-        <CardHeader className="pb-3">
+        <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-wellness-sage-dark">
             <div className="p-2 rounded-lg bg-wellness-sage/20">
               <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -250,7 +243,7 @@ const Reminders = () => {
             {editingReminder ? "Edit Reminder" : "Create New Reminder"}
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4 pt-0">
+        <CardContent className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               placeholder="Reminder title..."
@@ -270,7 +263,7 @@ const Reminders = () => {
             placeholder="Optional message to remind yourself..."
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            className="border-wellness-sage/30 focus:border-wellness-sage/50 min-h-[60px] transition-colors text-sm"
+            className="border-wellness-sage/30 focus:border-wellness-sage/50 min-h-[80px] transition-colors text-sm"
           />
           
           <div className="flex flex-col sm:flex-row gap-3">
@@ -280,9 +273,9 @@ const Reminders = () => {
               className={`${newFrequency === "daily" 
                 ? "bg-wellness-sky hover:bg-wellness-sky-dark text-white" 
                 : "border-wellness-sky text-wellness-sky-dark hover:bg-wellness-sky/10"
-              } transition-all text-sm px-3 py-2`}
+              } transition-all text-sm`}
             >
-              <Clock className="h-3 w-3 mr-1" />
+              <Clock className="h-4 w-4 mr-2" />
               Daily
             </Button>
             <Button
@@ -291,9 +284,9 @@ const Reminders = () => {
               className={`${newFrequency === "weekly" 
                 ? "bg-wellness-lavender hover:bg-wellness-lavender-dark text-white" 
                 : "border-wellness-lavender text-wellness-lavender-dark hover:bg-wellness-lavender/10"
-              } transition-all text-sm px-3 py-2`}
+              } transition-all text-sm`}
             >
-              <Volume2 className="h-3 w-3 mr-1" />
+              <Volume2 className="h-4 w-4 mr-2" />
               Weekly
             </Button>
             <Button
@@ -302,9 +295,9 @@ const Reminders = () => {
               className={`${newFrequency === "monthly" 
                 ? "bg-wellness-sage hover:bg-wellness-sage-dark text-white" 
                 : "border-wellness-sage text-wellness-sage-dark hover:bg-wellness-sage/10"
-              } transition-all text-sm px-3 py-2`}
+              } transition-all text-sm`}
             >
-              <Calendar className="h-3 w-3 mr-1" />
+              <Calendar className="h-4 w-4 mr-2" />
               Monthly
             </Button>
             <div className="flex gap-2 sm:ml-auto">
@@ -312,17 +305,17 @@ const Reminders = () => {
                 <Button 
                   onClick={handleCancelEdit}
                   variant="outline"
-                  className="text-gray-600 hover:bg-gray-100 transition-all px-3 py-2 text-sm"
+                  className="text-gray-600 hover:bg-gray-100 transition-all px-4 text-sm"
                 >
                   Cancel
                 </Button>
               )}
               <Button 
                 onClick={handleAddReminder}
-                className="bg-wellness-sage hover:bg-wellness-sage-dark text-white shadow-md hover:shadow-lg transition-all px-4 py-2 text-sm"
+                className="bg-wellness-sage hover:bg-wellness-sage-dark text-white shadow-md hover:shadow-lg transition-all px-6 text-sm"
               >
-                <Plus className="h-3 w-3 mr-1" />
-                {editingReminder ? "Update" : "Add"}
+                <Plus className="h-4 w-4 mr-2" />
+                {editingReminder ? "Update Reminder" : "Add Reminder"}
               </Button>
             </div>
           </div>
@@ -330,33 +323,33 @@ const Reminders = () => {
       </Card>
 
       {/* Reminders List */}
-      <div className="grid gap-3">
+      <div className="grid gap-4">
         {reminders.map((reminder) => (
           <Card 
             key={reminder.id} 
             className={`glass-morphism transition-all duration-300 hover:scale-[1.01] ${
               reminder.active 
-                ? "border-wellness-peach/40 bg-wellness-peach/5 shadow-md hover:shadow-lg" 
+                ? "border-wellness-peach/40 bg-wellness-peach/5 shadow-lg hover:shadow-xl" 
                 : "border-gray-200 bg-gray-50/50 opacity-75 hover:opacity-90"
             }`}
           >
-            <CardContent className="p-3 sm:p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1 space-y-1">
-                  <div className="flex items-center gap-2">
-                    <div className={`p-1.5 rounded-lg ${reminder.active ? 'bg-wellness-peach/20' : 'bg-gray-200'}`}>
-                      <Bell className={`h-3 w-3 sm:h-4 sm:w-4 ${reminder.active ? 'text-wellness-peach-dark' : 'text-gray-500'}`} />
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg ${reminder.active ? 'bg-wellness-peach/20' : 'bg-gray-200'}`}>
+                      <Bell className={`h-4 w-4 sm:h-5 sm:w-5 ${reminder.active ? 'text-wellness-peach-dark' : 'text-gray-500'}`} />
                     </div>
                     <div className="flex-1">
-                      <h3 className={`font-semibold text-sm sm:text-base ${reminder.active ? "text-wellness-sage-dark" : "text-gray-500"}`}>
+                      <h3 className={`font-semibold text-base sm:text-lg ${reminder.active ? "text-wellness-sage-dark" : "text-gray-500"}`}>
                         {reminder.title}
                       </h3>
-                      <div className="flex flex-wrap items-center gap-1 mt-0.5">
+                      <div className="flex flex-wrap items-center gap-2 mt-1">
                         <Badge 
                           variant="outline" 
                           className={`text-xs ${reminder.active ? "border-wellness-peach text-wellness-peach-dark bg-wellness-peach/10" : "border-gray-300 text-gray-500"}`}
                         >
-                          <Clock className="h-2 w-2 mr-1" />
+                          <Clock className="h-3 w-3 mr-1" />
                           {formatTime12Hour(reminder.time)}
                         </Badge>
                         <Badge 
@@ -373,12 +366,12 @@ const Reminders = () => {
                     </div>
                   </div>
                   {reminder.message && (
-                    <p className={`text-xs sm:text-sm pl-6 sm:pl-8 leading-relaxed ${reminder.active ? "text-wellness-sage-dark/80" : "text-gray-400"}`}>
+                    <p className={`text-xs sm:text-sm pl-10 sm:pl-12 leading-relaxed ${reminder.active ? "text-wellness-sage-dark/80" : "text-gray-400"}`}>
                       {reminder.message}
                     </p>
                   )}
                 </div>
-                <div className="flex flex-col sm:flex-row items-center gap-1">
+                <div className="flex flex-col sm:flex-row items-center gap-2">
                   <Button
                     variant="outline"
                     size="sm"
@@ -386,7 +379,7 @@ const Reminders = () => {
                     className={`${reminder.active 
                       ? "border-wellness-peach text-wellness-peach-dark hover:bg-wellness-peach/10" 
                       : "border-gray-300 text-gray-500 hover:bg-gray-100"
-                    } transition-all text-xs px-2 py-1`}
+                    } transition-all text-xs`}
                   >
                     {reminder.active ? "Active" : "Inactive"}
                   </Button>
@@ -394,17 +387,17 @@ const Reminders = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => handleEditReminder(reminder)}
-                    className="text-wellness-sage-dark hover:text-wellness-sage hover:bg-wellness-sage/10 transition-colors p-1"
+                    className="text-wellness-sage-dark hover:text-wellness-sage hover:bg-wellness-sage/10 transition-colors"
                   >
-                    <Edit className="h-3 w-3" />
+                    <Edit className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => handleDeleteReminder(reminder.id)}
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors p-1"
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors"
                   >
-                    <Trash2 className="h-3 w-3" />
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
@@ -415,10 +408,10 @@ const Reminders = () => {
 
       {reminders.length === 0 && (
         <Card className="glass-morphism border-wellness-peach/20 text-center">
-          <CardContent className="p-6 sm:p-8">
-            <div className="space-y-3">
-              <Bell className="h-8 w-8 sm:h-12 sm:w-12 text-wellness-peach/50 mx-auto" />
-              <h3 className="text-base sm:text-lg font-medium text-wellness-peach-dark">
+          <CardContent className="p-8 sm:p-12">
+            <div className="space-y-4">
+              <Bell className="h-12 w-12 sm:h-16 sm:w-16 text-wellness-peach/50 mx-auto" />
+              <h3 className="text-lg sm:text-xl font-medium text-wellness-peach-dark">
                 No reminders yet
               </h3>
               <p className="text-wellness-sage-dark/70 max-w-md mx-auto leading-relaxed text-sm">
@@ -431,7 +424,7 @@ const Reminders = () => {
 
       {/* Up Next Section */}
       <Card className="glass-morphism border-wellness-sky/30 hover:shadow-lg transition-all duration-300">
-        <CardHeader className="pb-2">
+        <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-wellness-sky-dark">
             <div className="p-2 rounded-lg bg-wellness-sky/20">
               <Clock className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -439,14 +432,14 @@ const Reminders = () => {
             Up Next
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2 pt-0">
+        <CardContent className="space-y-3">
           {upcomingReminders.length > 0 ? (
             upcomingReminders.map((reminder) => (
-              <div key={reminder.id} className="flex items-center justify-between p-2 rounded-lg bg-wellness-sky/10 border border-wellness-sky/20">
-                <div className="flex items-center gap-2">
-                  <Bell className="h-3 w-3 text-wellness-sky-dark" />
+              <div key={reminder.id} className="flex items-center justify-between p-3 rounded-lg bg-wellness-sky/10 border border-wellness-sky/20">
+                <div className="flex items-center gap-3">
+                  <Bell className="h-4 w-4 text-wellness-sky-dark" />
                   <div>
-                    <p className="font-medium text-wellness-sky-dark text-xs">{reminder.title}</p>
+                    <p className="font-medium text-wellness-sky-dark text-sm">{reminder.title}</p>
                     <p className="text-xs text-wellness-sky-dark/70">{formatTime12Hour(reminder.time)}</p>
                   </div>
                 </div>
@@ -456,7 +449,7 @@ const Reminders = () => {
               </div>
             ))
           ) : (
-            <p className="text-wellness-sky-dark/70 text-sm text-center py-3">
+            <p className="text-wellness-sky-dark/70 text-sm text-center py-4">
               No upcoming reminders. Create one to get started!
             </p>
           )}
@@ -465,7 +458,7 @@ const Reminders = () => {
 
       {/* Quick Actions - Moved to bottom */}
       <Card className="glass-morphism border-wellness-lavender/30 hover:shadow-lg transition-all duration-300">
-        <CardHeader className="pb-2">
+        <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-wellness-lavender-dark">
             <div className="p-2 rounded-lg bg-wellness-lavender/20">
               <Settings className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -473,25 +466,25 @@ const Reminders = () => {
             Quick Actions
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-0">
-          <div className="flex flex-col sm:flex-row gap-2 mb-3">
+        <CardContent>
+          <div className="flex flex-col sm:flex-row gap-3 mb-4">
             <Button
               onClick={handleSnoozeAll}
-              className="flex-1 bg-wellness-lavender hover:bg-wellness-lavender-dark text-white transition-all text-sm py-2"
+              className="flex-1 bg-wellness-lavender hover:bg-wellness-lavender-dark text-white transition-all text-sm"
             >
-              <Timer className="h-3 w-3 mr-1" />
+              <Timer className="h-4 w-4 mr-2" />
               Snooze All (15 min)
             </Button>
             <Button
               onClick={handleMarkAllComplete}
-              className="flex-1 bg-wellness-sage hover:bg-wellness-sage-dark text-white transition-all text-sm py-2"
+              className="flex-1 bg-wellness-sage hover:bg-wellness-sage-dark text-white transition-all text-sm"
             >
-              <CheckCircle className="h-3 w-3 mr-1" />
+              <CheckCircle className="h-4 w-4 mr-2" />
               Mark All Complete
             </Button>
           </div>
-          <div className="p-2 bg-wellness-lavender/10 rounded-lg border border-wellness-lavender/20">
-            <h4 className="font-medium text-wellness-lavender-dark text-sm mb-1">Smart Notifications</h4>
+          <div className="p-3 bg-wellness-lavender/10 rounded-lg border border-wellness-lavender/20">
+            <h4 className="font-medium text-wellness-lavender-dark text-sm mb-2">Smart Notifications</h4>
             <p className="text-xs text-wellness-lavender-dark/70 leading-relaxed">
               Get intelligent reminders based on your daily patterns and wellness goals. Notifications adapt to your schedule for maximum effectiveness.
             </p>

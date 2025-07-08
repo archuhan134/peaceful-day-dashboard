@@ -114,67 +114,69 @@ const Habits = () => {
   };
 
   return (
-    <div className="space-y-6 px-2 sm:px-0">
-      <AppHeader />
-      
-      {/* Header Section */}
-      <div className="text-center mb-6">
-        <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-wellness-sage-dark via-wellness-sky-dark to-wellness-lavender-dark bg-clip-text text-transparent mb-3">
-          Habit Tracking
-        </h1>
-        <p className="text-wellness-sage-dark/70 text-lg max-w-2xl mx-auto">
-          Build lasting positive habits that nurture your well-being
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-wellness-sage/5 via-wellness-sky/5 to-wellness-lavender/5">
+      <div className="container mx-auto px-4 py-6 max-w-4xl">
+        <AppHeader />
+        
+        {/* Header Section */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-wellness-sage-dark via-wellness-sky-dark to-wellness-lavender-dark bg-clip-text text-transparent mb-3">
+            Habit Tracking
+          </h1>
+          <p className="text-wellness-sage-dark/70 text-lg max-w-2xl mx-auto">
+            Build lasting positive habits that nurture your well-being
+          </p>
+        </div>
 
-      {/* Habits Grid */}
-      <div className="grid gap-6 mb-8">
-        {habits.map((habit) => (
-          <HabitCard
-            key={habit.id}
-            habit={habit}
-            onToggleDay={handleToggleDay}
-            onMarkToday={handleMarkToday}
-            onEdit={handleEditHabit}
-          />
-        ))}
-      </div>
+        {/* Habits Grid */}
+        <div className="grid gap-6 mb-8">
+          {habits.map((habit) => (
+            <HabitCard
+              key={habit.id}
+              habit={habit}
+              onToggleDay={handleToggleDay}
+              onMarkToday={handleMarkToday}
+              onEdit={handleEditHabit}
+            />
+          ))}
+        </div>
 
-      {/* Create New Habit Section */}
-      <Card className="glass-morphism border-wellness-sage/30 hover:shadow-xl transition-all duration-300">
-        <CardContent className="p-8 text-center">
-          <div className="space-y-6">
-            <div className="mx-auto w-16 h-16 bg-gradient-to-br from-wellness-sage/20 to-wellness-sky/20 rounded-full flex items-center justify-center mb-4">
-              <Sparkles className="h-8 w-8 text-wellness-sage-dark" />
+        {/* Create New Habit Section */}
+        <Card className="glass-morphism border-wellness-sage/30 hover:shadow-xl transition-all duration-300">
+          <CardContent className="p-8 text-center">
+            <div className="space-y-6">
+              <div className="mx-auto w-16 h-16 bg-gradient-to-br from-wellness-sage/20 to-wellness-sky/20 rounded-full flex items-center justify-center mb-4">
+                <Sparkles className="h-8 w-8 text-wellness-sage-dark" />
+              </div>
+              
+              <div>
+                <h3 className="text-xl font-semibold text-wellness-sage-dark mb-2">
+                  Ready to Build a New Habit?
+                </h3>
+                <p className="text-wellness-sage-dark/70 max-w-md mx-auto leading-relaxed">
+                  Start small, be consistent, and watch as positive changes compound over time
+                </p>
+              </div>
+
+              <Button 
+                onClick={() => setIsDialogOpen(true)}
+                className="bg-gradient-to-r from-wellness-sage to-wellness-sky hover:from-wellness-sage-dark hover:to-wellness-sky-dark text-white px-8 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                <Plus className="h-5 w-5 mr-2" />
+                Create New Habit
+              </Button>
             </div>
-            
-            <div>
-              <h3 className="text-xl font-semibold text-wellness-sage-dark mb-2">
-                Ready to Build a New Habit?
-              </h3>
-              <p className="text-wellness-sage-dark/70 max-w-md mx-auto leading-relaxed">
-                Start small, be consistent, and watch as positive changes compound over time
-              </p>
-            </div>
+          </CardContent>
+        </Card>
 
-            <Button 
-              onClick={() => setIsDialogOpen(true)}
-              className="bg-gradient-to-r from-wellness-sage to-wellness-sky hover:from-wellness-sage-dark hover:to-wellness-sky-dark text-white px-8 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              <Plus className="h-5 w-5 mr-2" />
-              Create New Habit
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Create/Edit Habit Dialog */}
-      <CreateHabitDialog
-        isOpen={isDialogOpen}
-        onClose={handleCloseDialog}
-        onSave={handleSaveHabit}
-        editingHabit={editingHabit}
-      />
+        {/* Create/Edit Habit Dialog */}
+        <CreateHabitDialog
+          isOpen={isDialogOpen}
+          onClose={handleCloseDialog}
+          onSave={handleSaveHabit}
+          editingHabit={editingHabit}
+        />
+      </div>
     </div>
   );
 };

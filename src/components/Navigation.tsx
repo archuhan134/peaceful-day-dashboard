@@ -12,13 +12,17 @@ import {
   Bell,
   User,
   Sparkles,
-  X
+  X,
+  CheckSquare,
+  Lightbulb,
+  Book
 } from "lucide-react";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
+  // Desktop navigation items
   const navItems = [
     { name: "Dashboard", path: "/", icon: Home },
     { name: "Habits", path: "/habits", icon: Target },
@@ -26,6 +30,14 @@ const Navigation = () => {
     { name: "Routines", path: "/routines", icon: Repeat },
     { name: "Mood Journal", path: "/mood", icon: Heart },
     { name: "Reminders", path: "/reminders", icon: Bell },
+    { name: "Profile", path: "/profile", icon: User },
+  ];
+
+  // Mobile bottom navigation items
+  const bottomNavItems = [
+    { name: "Routine", path: "/", icon: CheckSquare },
+    { name: "Inspire", path: "/inspire", icon: Lightbulb },
+    { name: "Library", path: "/library", icon: Book },
     { name: "Profile", path: "/profile", icon: User },
   ];
 
@@ -61,7 +73,7 @@ const Navigation = () => {
         />
       )}
 
-      {/* Navigation Sidebar */}
+      {/* Desktop Navigation Sidebar */}
       <nav className={`
         fixed left-0 top-0 h-full w-64 bg-white/95 backdrop-blur-md border-r border-wellness-sage/20 z-40
         transform transition-transform duration-300 ease-in-out
@@ -114,8 +126,38 @@ const Navigation = () => {
         </div>
       </nav>
 
+      {/* Mobile Bottom Navigation */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40">
+        <div className="bg-white/95 backdrop-blur-md border-t border-wellness-sage/20 px-4 py-2">
+          <div className="flex justify-around items-center">
+            {bottomNavItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.name}
+                  to={item.path}
+                  className={`flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-all duration-200 ${
+                    isActive(item.path)
+                      ? 'text-wellness-sage-dark bg-wellness-sage/10'
+                      : 'text-wellness-sage-dark/60 hover:text-wellness-sage-dark hover:bg-wellness-sage/5'
+                  }`}
+                >
+                  <Icon className={`h-5 w-5 ${
+                    isActive(item.path) ? 'text-wellness-sage' : ''
+                  }`} />
+                  <span className="text-xs font-medium">{item.name}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
       {/* Spacer for desktop */}
       <div className="hidden lg:block w-64 flex-shrink-0" />
+      
+      {/* Spacer for mobile bottom navigation */}
+      <div className="lg:hidden h-16" />
     </>
   );
 };

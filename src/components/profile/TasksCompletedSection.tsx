@@ -14,9 +14,9 @@ const TasksCompletedSection = () => {
       <Card className="glass-morphism border-wellness-peach/20">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-wellness-peach-dark flex items-center gap-2">
+            <CardTitle className="text-wellness-peach-dark flex items-center gap-3">
               <CheckCircle className="h-5 w-5" />
-              {t('tasksCompleted')} ({getTasksCount()})
+              <span>{t('tasksCompleted')} ({getTasksCount()})</span>
             </CardTitle>
           </div>
         </CardHeader>
@@ -27,7 +27,7 @@ const TasksCompletedSection = () => {
                 No tasks completed yet.
               </p>
             ) : (
-              completedTasks.slice(0, 10).map((task) => (
+              completedTasks.slice(0, 7).map((task) => (
                 <div key={task.id} className="flex items-center justify-between p-3 bg-wellness-peach/10 rounded-lg">
                   <div className="flex-1">
                     <h4 className="font-medium text-wellness-sage-dark">{task.name}</h4>

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -96,7 +95,6 @@ const Auth = () => {
     };
     
     localStorage.setItem("userSession", JSON.stringify(demoData));
-    toast.success("Welcome to the demo!");
     navigate('/');
   };
 

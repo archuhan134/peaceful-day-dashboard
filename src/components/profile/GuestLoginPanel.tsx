@@ -2,12 +2,21 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronRight } from "lucide-react";
 import { useTranslations } from "@/hooks/useTranslations";
+import { useNavigate } from "react-router-dom";
 
 const GuestLoginPanel = () => {
   const { t } = useTranslations();
+  const navigate = useNavigate();
+
+  const handleLoginClick = () => {
+    navigate('/auth');
+  };
 
   return (
-    <Card className="glass-morphism border-wellness-sage/20 mx-4">
+    <Card 
+      className="glass-morphism border-wellness-sage/20 mx-4 cursor-pointer hover:shadow-lg transition-all duration-200"
+      onClick={handleLoginClick}
+    >
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div>

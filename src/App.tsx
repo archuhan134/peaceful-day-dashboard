@@ -15,6 +15,8 @@ import Reminders from "./pages/Reminders";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
+import Inspire from "./pages/Inspire";
+import Library from "./pages/Library";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -85,6 +87,8 @@ const App = () => {
                     <Route path="/reminders" element={<Reminders />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/settings" element={<Settings />} />
+                    <Route path="/inspire" element={<Inspire />} />
+                    <Route path="/library" element={<Library />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </div>

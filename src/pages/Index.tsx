@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -157,10 +158,9 @@ const Index = () => {
 
   return (
     <div className="space-y-6 lg:space-y-8 animate-fade-in relative">
-      {/* Header with Profile Icon and Plus Button */}
-      <div className="flex items-center justify-between px-4">
-        <div className="w-10 h-10"></div> {/* Spacer for balance */}
-        <div className="text-center flex-1">
+      {/* Header with centered title and navigation icons */}
+      <div className="flex items-center justify-center px-4 relative">
+        <div className="text-center">
           <h1 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-wellness-sage-dark via-wellness-sky-dark to-wellness-lavender-dark bg-clip-text text-transparent mb-1">
             Daily Life Routine
           </h1>
@@ -168,12 +168,14 @@ const Index = () => {
             Your peaceful wellness overview
           </p>
         </div>
-        <div className="flex gap-2">
+        
+        {/* Navigation icons positioned above the bottom navigation */}
+        <div className="fixed bottom-20 right-4 flex flex-col gap-3 z-50">
           <Button
             variant="outline"
             size="icon"
             onClick={() => setShowCreateTask(true)}
-            className="bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white border-0 w-12 h-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+            className="bg-wellness-sage hover:bg-wellness-sage-dark text-white border-0 w-12 h-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
           >
             <Plus className="h-6 w-6" />
           </Button>
@@ -181,7 +183,7 @@ const Index = () => {
             variant="outline"
             size="icon"
             onClick={() => navigate('/profile')}
-            className="glass-morphism border-wellness-sage/30 hover:bg-wellness-sage/10 w-10 h-10 rounded-full"
+            className="glass-morphism border-wellness-sage/30 hover:bg-wellness-sage/10 w-12 h-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
           >
             <User className="h-5 w-5 text-wellness-sage-dark" />
           </Button>

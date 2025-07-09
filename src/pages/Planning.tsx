@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,8 @@ const Planning = () => {
     { id: "4", name: "Call family", completed: false }
   ]);
 
+  // Load tasks created from the main dashboard
+  const [dashboardTasks, setDashboardTasks] = useLocalStorage("tasks", []);
   const [dailyTasks, setDailyTasks] = useLocalStorage<Task[]>("local_daily_tasks", []);
   const [routines, setRoutines] = useLocalStorage<Routine[]>("local_routines", [
     {
@@ -56,10 +59,16 @@ const Planning = () => {
     setTasks(prev => prev.map(task => 
       task.id === id ? { ...task, completed: !task.completed } : task
     ));
+    
+    // Also update dashboard tasks if it exists there
+    setDashboardTasks(prev => prev.map((task: any) => 
+      task.id === id ? { ...task, completed: !task.completed } : task
+    ));
   };
 
   const handleDeleteTask = (id: string) => {
     setTasks(prev => prev.filter(task => task.id !== id));
+    setDashboardTasks(prev => prev.filter((task: any) => task.id !== id));
   };
 
   const handleSaveTask = (taskData: Omit<Task, 'id' | 'completed'>) => {
@@ -121,9 +130,11 @@ const Planning = () => {
     setRoutines(prev => prev.filter(routine => routine.id !== id));
   };
 
-  const pendingTasks = tasks.filter(t => !t.completed);
-  const completedTasks = tasks.filter(t => t.completed);
-  const completionRate = tasks.length > 0 ? Math.round((completedTasks.length / tasks.length) * 100) : 0;
+  // Combine all tasks for display
+  const allTasks = [...tasks, ...dashboardTasks];
+  const pendingTasks = allTasks.filter(t => !t.completed);
+  const completedTasks = allTasks.filter(t => t.completed);
+  const completionRate = allTasks.length > 0 ? Math.round((completedTasks.length / allTasks.length) * 100) : 0;
 
   const getMotivationalMessage = () => {
     if (completionRate === 100) return "Perfect day! You've accomplished everything! 🎉";
@@ -442,15 +453,31 @@ const Planning = () => {
                 <div
                   key={task.id}
                   className="flex items-center gap-3 p-4 rounded-xl hover:bg-wellness-lavender/10 transition-all hover:scale-[1.01] border border-transparent hover:border-wellness-lavender/30"
+                  style={{
+                    borderLeftWidth: '4px',
+                    borderLeftColor: task.color || '#7C3AED'
+                  }}
                 >
                   <Checkbox
                     checked={task.completed}
                     onCheckedChange={() => handleTaskToggle(task.id)}
                     className="data-[state=checked]:bg-wellness-lavender data-[state=checked]:border-wellness-lavender"
                   />
-                  <span className="flex-1 text-wellness-lavender-dark font-medium">
-                    {task.name}
-                  </span>
+                  <div className="flex-1">
+                    <span className="text-wellness-lavender-dark font-medium">
+                      {task.name}
+                    </span>
+                    {task.time && task.time !== "Anytime" && (
+                      <div className="text-xs text-wellness-lavender-dark/60 mt-1">
+                        {task.time}
+                      </div>
+                    )}
+                    {task.repeat && task.repeat !== "No repeat" && (
+                      <Badge className="mt-1 text-xs bg-wellness-lavender/20 text-wellness-lavender-dark">
+                        {task.repeat}
+                      </Badge>
+                    )}
+                  </div>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -493,15 +520,26 @@ const Planning = () => {
                 <div
                   key={task.id}
                   className="flex items-center gap-3 p-4 rounded-xl bg-wellness-peach/10 border border-wellness-peach/20 opacity-90"
+                  style={{
+                    borderLeftWidth: '4px',
+                    borderLeftColor: task.color || '#7C3AED'
+                  }}
                 >
                   <Checkbox
                     checked={task.completed}
                     onCheckedChange={() => handleTaskToggle(task.id)}
                     className="data-[state=checked]:bg-wellness-peach data-[state=checked]:border-wellness-peach"
                   />
-                  <span className="flex-1 line-through text-wellness-peach-dark/70 font-medium">
-                    {task.name}
-                  </span>
+                  <div className="flex-1">
+                    <span className="line-through text-wellness-peach-dark/70 font-medium">
+                      {task.name}
+                    </span>
+                    {task.time && task.time !== "Anytime" && (
+                      <div className="text-xs text-wellness-peach-dark/50 mt-1 line-through">
+                        {task.time}
+                      </div>
+                    )}
+                  </div>
                   <Badge className="bg-wellness-peach/20 text-wellness-peach-dark border-wellness-peach/30">
                     ✓ Done
                   </Badge>

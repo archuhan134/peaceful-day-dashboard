@@ -3,11 +3,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Heart, Calendar, List, Target, CheckCircle, Repeat, Bell, Sparkles, Sun, Moon, Save, User } from "lucide-react";
+import { Heart, Calendar, List, Target, CheckCircle, Repeat, Bell, Sparkles, Sun, Moon, Save, User, Plus } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { MoodSelector } from "@/components/dashboard/MoodSelector";
+import CreateTaskDialog from "@/components/dashboard/CreateTaskDialog";
 import AppHeader from "@/components/AppHeader";
 import { toast } from "sonner";
 
@@ -16,6 +17,7 @@ const Index = () => {
   
   // State for panel visibility
   const [showMoodSelector, setShowMoodSelector] = useState(false);
+  const [showCreateTask, setShowCreateTask] = useState(false);
 
   // LocalStorage states
   const [todayMood, setTodayMood] = useLocalStorage("todayMood", "😊");
@@ -122,6 +124,27 @@ const Index = () => {
     }
   };
 
+  const handleCreateTask = (newTask: any) => {
+    // Add the new task to the tasks list
+    const existingTasks = JSON.parse(localStorage.getItem("tasks") || "[]");
+    const updatedTasks = [...existingTasks, newTask];
+    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+    
+    // Also add to upcoming tasks if it's for today
+    if (newTask.date === "Today") {
+      const existingUpcoming = JSON.parse(localStorage.getItem("upcomingTasks") || "[]");
+      const upcomingTask = {
+        id: parseInt(newTask.id),
+        task: newTask.name,
+        time: newTask.time === "Anytime" ? "Anytime" : newTask.time,
+        completed: false
+      };
+      const updatedUpcoming = [...existingUpcoming, upcomingTask];
+      localStorage.setItem("upcomingTasks", JSON.stringify(updatedUpcoming));
+      setUpcomingTasks(updatedUpcoming);
+    }
+  };
+
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return { text: "Good Morning", icon: Sun };
@@ -134,7 +157,7 @@ const Index = () => {
 
   return (
     <div className="space-y-6 lg:space-y-8 animate-fade-in relative">
-      {/* Header with Profile Icon - Center aligned */}
+      {/* Header with Profile Icon and Plus Button */}
       <div className="flex items-center justify-between px-4">
         <div className="w-10 h-10"></div> {/* Spacer for balance */}
         <div className="text-center flex-1">
@@ -145,14 +168,24 @@ const Index = () => {
             Your peaceful wellness overview
           </p>
         </div>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => navigate('/profile')}
-          className="glass-morphism border-wellness-sage/30 hover:bg-wellness-sage/10 w-10 h-10 rounded-full"
-        >
-          <User className="h-5 w-5 text-wellness-sage-dark" />
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setShowCreateTask(true)}
+            className="bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white border-0 w-12 h-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+          >
+            <Plus className="h-6 w-6" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => navigate('/profile')}
+            className="glass-morphism border-wellness-sage/30 hover:bg-wellness-sage/10 w-10 h-10 rounded-full"
+          >
+            <User className="h-5 w-5 text-wellness-sage-dark" />
+          </Button>
+        </div>
       </div>
 
       {/* Welcome Section */}
@@ -463,6 +496,13 @@ const Index = () => {
           <cite className="text-wellness-sage-dark/70 text-lg">— Buddha</cite>
         </CardContent>
       </Card>
+
+      {/* Create Task Dialog */}
+      <CreateTaskDialog
+        isOpen={showCreateTask}
+        onClose={() => setShowCreateTask(false)}
+        onTaskCreate={handleCreateTask}
+      />
     </div>
   );
 };

@@ -95,7 +95,8 @@ const Auth = () => {
     };
     
     localStorage.setItem("userSession", JSON.stringify(demoData));
-    navigate('/');
+    // Force a page reload to trigger authentication check
+    window.location.href = '/';
   };
 
   return (

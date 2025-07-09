@@ -9,7 +9,9 @@ const GuestLoginPanel = () => {
   const navigate = useNavigate();
 
   const handleLoginClick = () => {
-    navigate('/auth');
+    // Clear any existing session and navigate to auth page
+    localStorage.removeItem("userSession");
+    window.location.href = '/auth';
   };
 
   return (

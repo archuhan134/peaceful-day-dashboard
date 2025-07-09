@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { User, ChevronRight, Star, CheckCircle, Settings, ArrowLeft } from "lucide-react";
+import { User, ChevronRight, CheckCircle, Settings, ArrowLeft } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useNavigate } from "react-router-dom";
 import { useTranslations } from "@/hooks/useTranslations";
+import { useCompletedTasks } from "@/hooks/useCompletedTasks";
 import AppHeader from "@/components/AppHeader";
+import BackButton from "@/components/BackButton";
 
 interface MoodEntry {
   id: string;
@@ -24,6 +26,7 @@ interface MoodEntry {
 const Profile = () => {
   const navigate = useNavigate();
   const { t } = useTranslations();
+  const { completedTasks, getTasksCount } = useCompletedTasks();
   const [selectedMoodDate, setSelectedMoodDate] = useState<Date | undefined>();
   const [selectedTaskDate, setSelectedTaskDate] = useState<Date | undefined>();
   const [showMoodHistory, setShowMoodHistory] = useState(false);
@@ -46,8 +49,6 @@ const Profile = () => {
   });
   
   const [taskData, setTaskData] = useLocalStorage<Record<string, boolean>>("taskCalendarData", {});
-  const [dayStreak, setDayStreak] = useLocalStorage("dayStreak", 0);
-  const [tasksCompleted, setTasksCompleted] = useLocalStorage("tasksCompleted", 0);
 
   // Update state when localStorage changes
   useState(() => {
@@ -78,18 +79,6 @@ const Profile = () => {
 
   const formatDateKey = (date: Date) => {
     return date.toISOString().split('T')[0];
-  };
-
-  const formatDisplayDate = (date: Date) => {
-    return date.toLocaleDateString('en-GB');
-  };
-
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
-      minute: '2-digit',
-      hour12: true 
-    });
   };
 
   const handleMoodSelect = (mood: { emoji: string; name: string }) => {
@@ -181,6 +170,7 @@ const Profile = () => {
   if (showMoodHistory) {
     return (
       <div className="space-y-6 animate-fade-in">
+        <BackButton />
         <div className="flex items-center gap-4 px-4">
           <Button
             variant="ghost"
@@ -230,6 +220,7 @@ const Profile = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <BackButton />
       <AppHeader />
 
       {/* Profile Header */}
@@ -268,25 +259,39 @@ const Profile = () => {
         </Button>
       </div>
 
-      {/* Streak & Tasks Count */}
-      <div className="grid grid-cols-2 gap-4 px-4">
-        <Card className="glass-morphism border-wellness-sky/20 text-center">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-center gap-1 mb-2">
-              <span className="text-2xl font-bold text-wellness-sky-dark">{dayStreak}</span>
-              <Star className="h-4 w-4 text-wellness-sky fill-wellness-sky" />
+      {/* Tasks Completed Count */}
+      <div className="px-4">
+        <Card className="glass-morphism border-wellness-peach/20">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-wellness-peach-dark flex items-center gap-2">
+                <CheckCircle className="h-5 w-5" />
+                {t('tasksCompleted')} ({getTasksCount()})
+              </CardTitle>
             </div>
-            <p className="text-sm text-wellness-sage-dark">{t('dayStreak')}</p>
-          </CardContent>
-        </Card>
-
-        <Card className="glass-morphism border-wellness-peach/20 text-center">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-center gap-1 mb-2">
-              <span className="text-2xl font-bold text-wellness-peach-dark">{tasksCompleted}</span>
-              <CheckCircle className="h-4 w-4 text-wellness-peach fill-wellness-peach" />
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3 max-h-64 overflow-y-auto">
+              {completedTasks.length === 0 ? (
+                <p className="text-wellness-sage-dark/70 text-center py-4">
+                  No tasks completed yet.
+                </p>
+              ) : (
+                completedTasks.slice(0, 10).map((task) => (
+                  <div key={task.id} className="flex items-center justify-between p-3 bg-wellness-peach/10 rounded-lg">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-wellness-sage-dark">{task.name}</h4>
+                      <p className="text-sm text-wellness-sage-dark/70">
+                        {task.date} • {task.completionTime}
+                      </p>
+                    </div>
+                    <Badge className="bg-wellness-peach/20 text-wellness-peach-dark border-wellness-peach/30 capitalize">
+                      {task.type}
+                    </Badge>
+                  </div>
+                ))
+              )}
             </div>
-            <p className="text-sm text-wellness-sage-dark">{t('taskCompleted')}</p>
           </CardContent>
         </Card>
       </div>

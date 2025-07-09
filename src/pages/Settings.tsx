@@ -3,17 +3,19 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ArrowLeft, User, Bell, Globe, RotateCcw, ChevronRight } from "lucide-react";
+import { ArrowLeft, User, Bell, Globe, RotateCcw, ChevronRight, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useTranslations } from "@/hooks/useTranslations";
 import { toast } from "sonner";
+import BackButton from "@/components/BackButton";
 
 const Settings = () => {
   const navigate = useNavigate();
   const { t, currentLanguage, changeLanguage, availableLanguages } = useTranslations();
   const [showLanguageDialog, setShowLanguageDialog] = useState(false);
   const [showResetDialog, setShowResetDialog] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   const handleLanguageSelect = (language: string) => {
     changeLanguage(language);
@@ -31,8 +33,7 @@ const Settings = () => {
     localStorage.removeItem("moodCalendarData");
     localStorage.removeItem("moodHistory");
     localStorage.removeItem("taskCalendarData");
-    localStorage.removeItem("dayStreak");
-    localStorage.removeItem("tasksCompleted");
+    localStorage.removeItem("completedTasks");
     localStorage.removeItem("todayMood");
     localStorage.removeItem("wellnessRating");
     localStorage.removeItem("wellnessReflection");
@@ -42,6 +43,12 @@ const Settings = () => {
     toast.success("All routine data has been reset successfully!");
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("userSession");
+    toast.success("Logged out successfully!");
+    window.location.reload(); // Reload to trigger authentication check
+  };
+
   const getCurrentLanguageName = () => {
     const lang = availableLanguages.find(l => l.code === currentLanguage);
     return `${lang?.flag} ${lang?.name}` || 'English';
@@ -49,6 +56,7 @@ const Settings = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <BackButton />
       {/* Header */}
       <div className="flex items-center gap-4 px-4 pt-4">
         <Button
@@ -76,7 +84,9 @@ const Settings = () => {
                 <span className="font-medium text-wellness-sage-dark">Account</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-wellness-sage-dark/70">Unregistered</span>
+                <span className="text-sm text-wellness-sage-dark/70">
+                  {JSON.parse(localStorage.getItem("userSession") || '{}').isDemo ? 'Demo User' : 'Authenticated'}
+                </span>
                 <ChevronRight className="h-4 w-4 text-wellness-sage-dark/50" />
               </div>
             </div>
@@ -117,7 +127,7 @@ const Settings = () => {
           </CardContent>
         </Card>
 
-        <Card className="glass-morphism border-wellness-peach/20">
+        <Card className="glass-morphism border-wellness-peach/20 mb-4">
           <CardContent className="p-4">
             <div 
               className="flex items-center justify-between cursor-pointer"
@@ -128,6 +138,23 @@ const Settings = () => {
                   <RotateCcw className="h-5 w-5 text-wellness-peach-dark" />
                 </div>
                 <span className="font-medium text-wellness-sage-dark">Reset entire routine</span>
+              </div>
+              <ChevronRight className="h-4 w-4 text-wellness-sage-dark/50" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="glass-morphism border-red-500/20">
+          <CardContent className="p-4">
+            <div 
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => setShowLogoutDialog(true)}
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-full bg-red-500/20">
+                  <LogOut className="h-5 w-5 text-red-600" />
+                </div>
+                <span className="font-medium text-wellness-sage-dark">Logout</span>
               </div>
               <ChevronRight className="h-4 w-4 text-wellness-sage-dark/50" />
             </div>
@@ -186,6 +213,33 @@ const Settings = () => {
               className="flex-1 bg-wellness-peach hover:bg-wellness-peach-dark text-white"
             >
               Reset All Data
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Logout Confirmation Dialog */}
+      <Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+        <DialogContent className="glass-morphism border-red-500/30">
+          <DialogHeader>
+            <DialogTitle className="text-wellness-sage-dark">Logout</DialogTitle>
+            <DialogDescription className="text-wellness-sage-dark/70">
+              Are you sure you want to logout? You'll need to sign in again to access your account.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3 mt-6">
+            <Button
+              variant="outline"
+              onClick={() => setShowLogoutDialog(false)}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleLogout}
+              className="flex-1 bg-red-500 hover:bg-red-600 text-white"
+            >
+              Logout
             </Button>
           </div>
         </DialogContent>

@@ -77,7 +77,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   const [time, setTime] = useState('Anytime');
   const [reminder, setReminder] = useState(false);
   const [reminderTime, setReminderTime] = useState('9:00 AM');
-  const [repeat, setRepeat] = useState('No repeat');
+  const [repeat, setRepeat] = useState<'No repeat' | 'Daily' | 'Weekly' | 'Monthly' | 'Weekends' | 'Custom'>('No repeat');
   const [customDays, setCustomDays] = useState<string[]>([]);
   const [selectedColor, setSelectedColor] = useState(taskColors[0].value);
 

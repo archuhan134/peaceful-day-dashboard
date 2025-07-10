@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,9 +8,26 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus, List, Calendar, CheckCircle, Clock, Sparkles, Edit, Repeat, Heart, Star, Save, RefreshCw } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import AppHeader from "@/components/AppHeader";
-import { CreateTaskDialog, Task } from "@/components/planning/CreateTaskDialog";
+import { CreateTaskDialog } from "@/components/planning/CreateTaskDialog";
 import { CreateRoutineDialog, Routine } from "@/components/planning/CreateRoutineDialog";
 import { toast } from "sonner";
+
+// Update the Task interface to match the dashboard version and include color
+export interface Task {
+  id: string;
+  name: string;
+  description?: string;
+  category: 'Work Projects' | 'Health & Wellness' | 'Personal Growth' | 'Relationship';
+  priority: 'Low' | 'Medium' | 'High';
+  dueDate?: Date;
+  time?: string;
+  reminder?: boolean;
+  reminderTime?: string;
+  repeat?: 'No repeat' | 'Daily' | 'Weekly' | 'Monthly' | 'Weekends' | 'Custom';
+  customDays?: string[];
+  color?: string;
+  completed: boolean;
+}
 
 // Motivational quotes array
 const motivationalQuotes = [
@@ -100,7 +116,7 @@ const Planning = () => {
       id: task.id,
       name: task.name,
       completed: task.completed || false,
-      category: task.category || 'General',
+      category: task.category || 'Work Projects',
       priority: task.priority || 'Medium',
       time: task.time,
       color: task.color
@@ -122,7 +138,7 @@ const Planning = () => {
         id: Date.now().toString(),
         name: newTask.trim(),
         completed: false,
-        category: 'General',
+        category: 'Work Projects',
         priority: 'Medium'
       };
       setAllTasks(prev => [task, ...prev]);
@@ -261,7 +277,7 @@ const Planning = () => {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0 pb-20">
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       <AppHeader />
 
       {/* Motivational Quote Section */}

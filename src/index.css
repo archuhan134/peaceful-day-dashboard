@@ -50,13 +50,13 @@ All colors MUST be HSL.
     --sidebar-ring: 217.2 91.2% 59.8%;
 
     /* Wellness Color Palette - Made darker by default */
-    --wellness-sage: 120 25% 65%;
+    --wellness-sage: 120 25% 55%;
     --wellness-sage-dark: 120 30% 40%;
-    --wellness-sky: 200 50% 70%;
+    --wellness-sky: 200 50% 60%;
     --wellness-sky-dark: 200 55% 45%;
-    --wellness-lavender: 280 30% 65%;
+    --wellness-lavender: 280 30% 55%;
     --wellness-lavender-dark: 280 35% 50%;
-    --wellness-peach: 15 50% 70%;
+    --wellness-peach: 15 50% 60%;
     --wellness-peach-dark: 15 55% 55%;
   }
 
@@ -153,23 +153,6 @@ All colors MUST be HSL.
 @layer components {
   .glass-morphism {
     @apply backdrop-blur-sm bg-white/80 border border-white/20;
-  }
-  
-  /* Darker wellness buttons by default */
-  .bg-wellness-sage {
-    @apply bg-wellness-sage hover:bg-wellness-sage-dark;
-  }
-  
-  .bg-wellness-sky {
-    @apply bg-wellness-sky hover:bg-wellness-sky-dark;
-  }
-  
-  .bg-wellness-lavender {
-    @apply bg-wellness-lavender hover:bg-wellness-lavender-dark;
-  }
-  
-  .bg-wellness-peach {
-    @apply bg-wellness-peach hover:bg-wellness-peach-dark;
   }
 }
 

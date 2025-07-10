@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -407,7 +406,7 @@ const Index = () => {
             ))}
             <Button 
               className="w-full mt-6 bg-wellness-sage hover:bg-wellness-sage-dark text-white shadow-md hover:shadow-lg transition-all"
-              onClick={() => navigate('/planning')}
+              onClick={() => navigate('/habits')}
             >
               <List className="h-4 w-4 mr-2" />
               View All Tasks

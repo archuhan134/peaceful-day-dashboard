@@ -53,7 +53,7 @@ const categories = [
 
 const repeatOptions = [
   'No repeat', 'Daily', 'Weekly', 'Monthly', 'Weekends', 'Custom'
-];
+] as const;
 
 const timeSlots = [
   '6:00 AM', '7:00 AM', '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM',
@@ -77,7 +77,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   const [time, setTime] = useState('Anytime');
   const [reminder, setReminder] = useState(false);
   const [reminderTime, setReminderTime] = useState('9:00 AM');
-  const [repeat, setRepeat] = useState<'No repeat' | 'Daily' | 'Weekly' | 'Monthly' | 'Weekends' | 'Custom'>('No repeat');
+  const [repeat, setRepeat] = useState<typeof repeatOptions[number]>('No repeat');
   const [customDays, setCustomDays] = useState<string[]>([]);
   const [selectedColor, setSelectedColor] = useState(taskColors[0].value);
 
@@ -141,6 +141,10 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
 
   const handleClose = () => {
     onClose();
+  };
+
+  const handleRepeatChange = (value: string) => {
+    setRepeat(value as typeof repeatOptions[number]);
   };
 
   return (
@@ -264,7 +268,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           {/* Repeat */}
           <div className="space-y-3">
             <Label>Repeat</Label>
-            <Select value={repeat} onValueChange={setRepeat}>
+            <Select value={repeat} onValueChange={handleRepeatChange}>
               <SelectTrigger className="border-wellness-sage/30 focus:border-wellness-sage/50">
                 <SelectValue />
               </SelectTrigger>

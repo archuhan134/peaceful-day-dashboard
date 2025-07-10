@@ -9,10 +9,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 export interface Task {
   id: string;
   name: string;
-  time: string;
+  time?: string;
   priority: "High" | "Medium" | "Low";
   category: "Work Projects" | "Health & Wellness" | "Personal Growth" | "Relationship";
   completed: boolean;
+  description?: string;
+  dueDate?: Date;
+  reminder?: boolean;
+  reminderTime?: string;
+  repeat?: 'No repeat' | 'Daily' | 'Weekly' | 'Monthly' | 'Weekends' | 'Custom';
+  customDays?: string[];
+  color?: string;
 }
 
 interface CreateTaskDialogProps {
@@ -44,7 +51,7 @@ export const CreateTaskDialog = ({ isOpen, onClose, onSave, editingTask }: Creat
   useEffect(() => {
     if (editingTask) {
       setTaskName(editingTask.name);
-      setTime(editingTask.time);
+      setTime(editingTask.time || "");
       setPriority(editingTask.priority);
       setCategory(editingTask.category);
     } else {
@@ -59,7 +66,7 @@ export const CreateTaskDialog = ({ isOpen, onClose, onSave, editingTask }: Creat
     if (taskName.trim()) {
       onSave({ 
         name: taskName.trim(), 
-        time: time.trim(),
+        time: time.trim() || undefined,
         priority,
         category
       });

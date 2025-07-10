@@ -503,7 +503,7 @@ const Index = () => {
       <CreateTaskDialog
         isOpen={showCreateTask}
         onClose={() => setShowCreateTask(false)}
-        onTaskCreate={handleCreateTask}
+        onSave={handleCreateTask}
       />
     </div>
   );

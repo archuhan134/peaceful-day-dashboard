@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -5,12 +6,56 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, List, Calendar, CheckCircle, Clock, Sparkles, Edit, Repeat, Heart, Star, Save } from "lucide-react";
+import { Plus, List, Calendar, CheckCircle, Clock, Sparkles, Edit, Repeat, Heart, Star, Save, RefreshCw } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import AppHeader from "@/components/AppHeader";
 import { CreateTaskDialog, Task } from "@/components/planning/CreateTaskDialog";
 import { CreateRoutineDialog, Routine } from "@/components/planning/CreateRoutineDialog";
 import { toast } from "sonner";
+
+// Motivational quotes array
+const motivationalQuotes = [
+  "Today is a new beginning. Make it count.",
+  "Small steps every day lead to big changes every year.",
+  "You are stronger than you think and more capable than you imagine.",
+  "Progress, not perfection, is the goal.",
+  "Every moment is a fresh beginning.",
+  "Believe in yourself and all that you are.",
+  "Your only limit is your mind.",
+  "Dream big, start small, but most importantly, start.",
+  "Success is the sum of small efforts repeated daily.",
+  "The best time to plant a tree was 20 years ago. The second best time is now.",
+  "You don't have to be great to get started, but you have to get started to be great.",
+  "Focus on the step in front of you, not the whole staircase.",
+  "What lies behind us and ahead of us are tiny matters compared to what lives within us.",
+  "The only impossible journey is the one you never begin.",
+  "Be yourself; everyone else is already taken.",
+  "In the middle of difficulty lies opportunity.",
+  "Life is 10% what happens to you and 90% how you react to it.",
+  "The future belongs to those who believe in the beauty of their dreams.",
+  "It is during our darkest moments that we must focus to see the light.",
+  "Happiness is not something ready-made. It comes from your own actions.",
+  "The way to get started is to quit talking and begin doing.",
+  "Don't watch the clock; do what it does. Keep going.",
+  "Keep your face always toward the sunshine—and shadows will fall behind you.",
+  "The only person you are destined to become is the person you decide to be.",
+  "Believe you can and you're halfway there.",
+  "It does not matter how slowly you go as long as you do not stop.",
+  "Everything you've ever wanted is on the other side of fear.",
+  "Life is really simple, but we insist on making it complicated.",
+  "The purpose of our lives is to be happy.",
+  "Life is what happens when you're busy making other plans.",
+  "Get busy living or get busy dying.",
+  "You have within you right now, everything you need to deal with whatever the world can throw at you.",
+  "The only way to do great work is to love what you do.",
+  "Innovation distinguishes between a leader and a follower.",
+  "Stay hungry, stay foolish.",
+  "Your time is limited, don't waste it living someone else's life.",
+  "The greatest glory in living lies not in never falling, but in rising every time we fall.",
+  "It is not the mountain we conquer, but ourselves.",
+  "Peace comes from within. Do not seek it without.",
+  "Mindfulness is the miracle by which we master and restore ourselves."
+];
 
 const Planning = () => {
   const [newTask, setNewTask] = useState('');
@@ -18,19 +63,14 @@ const Planning = () => {
   const [isRoutineDialogOpen, setIsRoutineDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [editingRoutine, setEditingRoutine] = useState<Routine | null>(null);
+  const [currentQuote, setCurrentQuote] = useState('');
   
   // Wellness tracking states
   const [wellnessRating, setWellnessRating] = useLocalStorage("wellness-rating", 5);
   const [dailyReflection, setDailyReflection] = useLocalStorage("daily_reflection", "");
 
-  const [tasks, setTasks] = useLocalStorage("local_tasks", [
-    { id: "1", name: "Review weekly goals", completed: false },
-    { id: "2", name: "Team meeting prep", completed: false },
-    { id: "3", name: "Grocery shopping", completed: false },
-    { id: "4", name: "Call family", completed: false }
-  ]);
-
-  // Load tasks created from the main dashboard
+  // Unified task management
+  const [allTasks, setAllTasks] = useLocalStorage<Task[]>("planning_tasks", []);
   const [dashboardTasks, setDashboardTasks] = useLocalStorage("tasks", []);
   const [dailyTasks, setDailyTasks] = useLocalStorage<Task[]>("local_daily_tasks", []);
   const [routines, setRoutines] = useLocalStorage<Routine[]>("local_routines", [
@@ -42,57 +82,86 @@ const Planning = () => {
     }
   ]);
 
-  const [completedTasks, setCompletedTasks] = useLocalStorage("tasksCompleted", []);
+  // Initialize with random quote on mount
+  useEffect(() => {
+    const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
+    setCurrentQuote(randomQuote);
+  }, []);
+
+  const getNewQuote = () => {
+    const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
+    setCurrentQuote(randomQuote);
+  };
+
+  // Combine all tasks from different sources
+  const combinedTasks = [
+    ...allTasks,
+    ...dashboardTasks.map((task: any) => ({
+      id: task.id,
+      name: task.name,
+      completed: task.completed || false,
+      category: task.category || 'General',
+      priority: task.priority || 'Medium',
+      time: task.time,
+      color: task.color
+    })),
+    ...dailyTasks
+  ];
+
+  // Remove duplicates by ID
+  const uniqueTasks = combinedTasks.filter((task, index, self) => 
+    index === self.findIndex(t => t.id === task.id)
+  );
+
+  const pendingTasks = uniqueTasks.filter(t => !t.completed);
+  const completedTasks = uniqueTasks.filter(t => t.completed);
 
   const handleAddTask = () => {
     if (newTask.trim()) {
-      const task = {
+      const task: Task = {
         id: Date.now().toString(),
         name: newTask.trim(),
-        completed: false
+        completed: false,
+        category: 'General',
+        priority: 'Medium'
       };
-      setTasks(prev => [task, ...prev]);
+      setAllTasks(prev => [task, ...prev]);
       setNewTask('');
+      toast.success("Task added successfully!");
     }
   };
 
-  const handleTaskToggle = (id: string) => {
-    const taskToToggle = tasks.find(task => task.id === id) || dashboardTasks.find((task: any) => task.id === id);
+  const handleTaskToggle = (taskId: string) => {
+    const task = uniqueTasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    const newCompletedStatus = !task.completed;
     
-    if (taskToToggle) {
-      const newCompletedStatus = !taskToToggle.completed;
-      
-      // Update local tasks
-      setTasks(prev => prev.map(task => 
-        task.id === id ? { ...task, completed: newCompletedStatus } : task
-      ));
-      
-      // Update dashboard tasks
-      setDashboardTasks(prev => prev.map((task: any) => 
-        task.id === id ? { ...task, completed: newCompletedStatus } : task
-      ));
-      
-      // Handle completed tasks tracking
-      if (newCompletedStatus) {
-        const completedTask = {
-          id: taskToToggle.id,
-          name: taskToToggle.name,
-          completedAt: new Date().toISOString(),
-          timestamp: new Date().toLocaleString()
-        };
-        setCompletedTasks(prev => [completedTask, ...prev].slice(0, 50)); // Keep last 50 completed tasks
-        toast.success(`Task "${taskToToggle.name}" completed! 🎉`);
-      } else {
-        // Remove from completed tasks if unchecked
-        setCompletedTasks(prev => prev.filter((completed: any) => completed.id !== id));
-        toast.success(`Task "${taskToToggle.name}" moved back to pending`);
-      }
+    // Update in all relevant storages
+    setAllTasks(prev => prev.map(t => 
+      t.id === taskId ? { ...t, completed: newCompletedStatus } : t
+    ));
+    
+    setDashboardTasks(prev => prev.map((t: any) => 
+      t.id === taskId ? { ...t, completed: newCompletedStatus } : t
+    ));
+    
+    setDailyTasks(prev => prev.map(t => 
+      t.id === taskId ? { ...t, completed: newCompletedStatus } : t
+    ));
+
+    if (newCompletedStatus) {
+      toast.success(`Task "${task.name}" completed! 🎉`);
+    } else {
+      toast.success(`Task "${task.name}" moved back to pending`);
     }
   };
 
-  const handleDeleteTask = (id: string) => {
-    setTasks(prev => prev.filter(task => task.id !== id));
-    setDashboardTasks(prev => prev.filter((task: any) => task.id !== id));
+  const handleDeleteTask = (taskId: string) => {
+    setAllTasks(prev => prev.filter(t => t.id !== taskId));
+    setDashboardTasks(prev => prev.filter((t: any) => t.id !== taskId));
+    setDailyTasks(prev => prev.filter(t => t.id !== taskId));
+    toast.success("Task deleted successfully!");
   };
 
   const handleSaveTask = (taskData: Omit<Task, 'id' | 'completed'>) => {
@@ -111,6 +180,7 @@ const Planning = () => {
       };
       setDailyTasks(prev => [...prev, newTask]);
     }
+    toast.success("Task saved successfully!");
   };
 
   const handleEditTask = (task: Task) => {
@@ -120,12 +190,7 @@ const Planning = () => {
 
   const handleDeleteDailyTask = (id: string) => {
     setDailyTasks(prev => prev.filter(task => task.id !== id));
-  };
-
-  const handleToggleDailyTask = (id: string) => {
-    setDailyTasks(prev => prev.map(task => 
-      task.id === id ? { ...task, completed: !task.completed } : task
-    ));
+    toast.success("Task deleted successfully!");
   };
 
   const handleSaveRoutine = (routineData: Omit<Routine, 'id'>) => {
@@ -143,6 +208,7 @@ const Planning = () => {
       };
       setRoutines(prev => [...prev, newRoutine]);
     }
+    toast.success("Routine saved successfully!");
   };
 
   const handleEditRoutine = (routine: Routine) => {
@@ -152,13 +218,10 @@ const Planning = () => {
 
   const handleDeleteRoutine = (id: string) => {
     setRoutines(prev => prev.filter(routine => routine.id !== id));
+    toast.success("Routine deleted successfully!");
   };
 
-  // Combine all tasks for display
-  const allTasks = [...tasks, ...dashboardTasks];
-  const pendingTasks = allTasks.filter(t => !t.completed);
-  const completedTasksList = allTasks.filter(t => t.completed);
-  const completionRate = allTasks.length > 0 ? Math.round((completedTasksList.length / allTasks.length) * 100) : 0;
+  const completionRate = uniqueTasks.length > 0 ? Math.round((completedTasks.length / uniqueTasks.length) * 100) : 0;
 
   const getMotivationalMessage = () => {
     if (completionRate === 100) return "Perfect day! You've accomplished everything! 🎉";
@@ -198,8 +261,28 @@ const Planning = () => {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0 pb-20">
       <AppHeader />
+
+      {/* Motivational Quote Section */}
+      <Card className="glass-morphism border-wellness-sage/30 hover:shadow-lg transition-all duration-300">
+        <CardContent className="pt-6">
+          <div className="text-center space-y-4">
+            <div className="text-lg font-medium text-wellness-sage-dark italic">
+              "{currentQuote}"
+            </div>
+            <Button 
+              onClick={getNewQuote}
+              variant="outline"
+              size="sm"
+              className="border-wellness-sage/30 text-wellness-sage-dark hover:bg-wellness-sage/10"
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              New Quote
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Wellness Check-in Section */}
       <Card className="glass-morphism border-wellness-peach/30 hover:shadow-lg transition-all duration-300">
@@ -263,11 +346,11 @@ const Planning = () => {
         <CardContent>
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center space-y-1">
-              <div className="text-2xl sm:text-3xl font-bold text-wellness-sky-dark">{tasks.length}</div>
+              <div className="text-2xl sm:text-3xl font-bold text-wellness-sky-dark">{uniqueTasks.length}</div>
               <p className="text-xs sm:text-sm text-wellness-sage-dark/70">Total Tasks</p>
             </div>
             <div className="text-center space-y-1">
-              <div className="text-2xl sm:text-3xl font-bold text-wellness-lavender-dark">{completedTasksList.length}</div>
+              <div className="text-2xl sm:text-3xl font-bold text-wellness-lavender-dark">{completedTasks.length}</div>
               <p className="text-xs sm:text-sm text-wellness-sage-dark/70">Completed</p>
             </div>
             <div className="text-center space-y-1">
@@ -412,10 +495,14 @@ const Planning = () => {
                         ? "bg-wellness-peach/10 opacity-75 border-wellness-peach/20" 
                         : "hover:bg-wellness-peach/10 border-transparent hover:border-wellness-peach/30"
                     }`}
+                    style={{
+                      borderLeftWidth: '4px',
+                      borderLeftColor: task.color || '#7C3AED'
+                    }}
                   >
                     <Checkbox
                       checked={task.completed}
-                      onCheckedChange={() => handleToggleDailyTask(task.id)}
+                      onCheckedChange={() => handleTaskToggle(task.id)}
                       className="data-[state=checked]:bg-wellness-peach data-[state=checked]:border-wellness-peach"
                     />
                     <div className="flex-1">
@@ -459,7 +546,7 @@ const Planning = () => {
         </div>
       )}
 
-      {/* Original Tasks Lists */}
+      {/* Tasks Lists */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Pending Tasks */}
         <Card className="glass-morphism border-wellness-lavender/30 hover:shadow-xl transition-all duration-300">
@@ -483,7 +570,7 @@ const Planning = () => {
                   }}
                 >
                   <Checkbox
-                    checked={task.completed}
+                    checked={false}
                     onCheckedChange={() => handleTaskToggle(task.id)}
                     className="data-[state=checked]:bg-wellness-lavender data-[state=checked]:border-wellness-lavender"
                   />
@@ -496,9 +583,9 @@ const Planning = () => {
                         {task.time}
                       </div>
                     )}
-                    {task.repeat && task.repeat !== "No repeat" && (
-                      <Badge className="mt-1 text-xs bg-wellness-lavender/20 text-wellness-lavender-dark">
-                        {task.repeat}
+                    {task.priority && (
+                      <Badge className={`mt-1 text-xs ${getPriorityColor(task.priority)}`}>
+                        {task.priority}
                       </Badge>
                     )}
                   </div>
@@ -535,12 +622,12 @@ const Planning = () => {
               <div className="p-2 rounded-lg bg-wellness-peach/20">
                 <Sparkles className="h-5 w-5" />
               </div>
-              Completed Tasks ({completedTasksList.length})
+              Completed Tasks ({completedTasks.length})
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 min-h-[300px]">
-            {completedTasksList.length > 0 ? (
-              completedTasksList.map((task) => (
+            {completedTasks.length > 0 ? (
+              completedTasks.map((task) => (
                 <div
                   key={task.id}
                   className="flex items-center gap-3 p-4 rounded-xl bg-wellness-peach/10 border border-wellness-peach/20 opacity-90"
@@ -550,7 +637,7 @@ const Planning = () => {
                   }}
                 >
                   <Checkbox
-                    checked={task.completed}
+                    checked={true}
                     onCheckedChange={() => handleTaskToggle(task.id)}
                     className="data-[state=checked]:bg-wellness-peach data-[state=checked]:border-wellness-peach"
                   />

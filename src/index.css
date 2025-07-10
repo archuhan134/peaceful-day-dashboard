@@ -156,7 +156,7 @@ All colors MUST be HSL.
   }
 }
 
-/* Mobile-specific improvements */
+/* Mobile-specific improvements and bottom navigation spacing */
 @media (max-width: 768px) {
   .container {
     @apply px-4;
@@ -171,4 +171,14 @@ All colors MUST be HSL.
   .dialog-content {
     @apply mx-4 w-auto max-w-sm;
   }
+  
+  /* Ensure all page content has bottom padding to avoid overlap with bottom nav */
+  main, .main-content, [data-page] {
+    @apply pb-20;
+  }
+}
+
+/* Universal bottom padding for all screens to prevent bottom nav overlap */
+.page-content {
+  @apply pb-20 lg:pb-4;
 }

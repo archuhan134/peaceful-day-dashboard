@@ -9,7 +9,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { MoodSelector } from "@/components/dashboard/MoodSelector";
-import { CreateTaskDialog } from "@/components/dashboard/CreateTaskDialog";
+import CreateTaskDialog from "@/components/dashboard/CreateTaskDialog";
 import AppHeader from "@/components/AppHeader";
 import { toast } from "sonner";
 
@@ -125,36 +125,25 @@ const Index = () => {
     }
   };
 
-  const handleCreateTask = (taskData: any) => {
-    const newTask = {
-      id: Date.now().toString(),
-      ...taskData,
-      completed: false
-    };
-
-    // Add to the main tasks list
+  const handleCreateTask = (newTask: any) => {
+    // Add the new task to the tasks list
     const existingTasks = JSON.parse(localStorage.getItem("tasks") || "[]");
     const updatedTasks = [...existingTasks, newTask];
     localStorage.setItem("tasks", JSON.stringify(updatedTasks));
     
-    // Add to planning tasks
-    const existingPlanningTasks = JSON.parse(localStorage.getItem("planning_tasks") || "[]");
-    const updatedPlanningTasks = [...existingPlanningTasks, newTask];
-    localStorage.setItem("planning_tasks", JSON.stringify(updatedPlanningTasks));
-    
-    // Also add to upcoming tasks for today's view
-    const existingUpcoming = JSON.parse(localStorage.getItem("upcomingTasks") || "[]");
-    const upcomingTask = {
-      id: parseInt(newTask.id),
-      task: newTask.name,
-      time: newTask.time === "Anytime" ? "Anytime" : newTask.time,
-      completed: false
-    };
-    const updatedUpcoming = [...existingUpcoming, upcomingTask];
-    localStorage.setItem("upcomingTasks", JSON.stringify(updatedUpcoming));
-    setUpcomingTasks(updatedUpcoming);
-
-    toast.success("Task created successfully! 🎉");
+    // Also add to upcoming tasks if it's for today
+    if (newTask.date === "Today") {
+      const existingUpcoming = JSON.parse(localStorage.getItem("upcomingTasks") || "[]");
+      const upcomingTask = {
+        id: parseInt(newTask.id),
+        task: newTask.name,
+        time: newTask.time === "Anytime" ? "Anytime" : newTask.time,
+        completed: false
+      };
+      const updatedUpcoming = [...existingUpcoming, upcomingTask];
+      localStorage.setItem("upcomingTasks", JSON.stringify(updatedUpcoming));
+      setUpcomingTasks(updatedUpcoming);
+    }
   };
 
   const getGreeting = () => {
@@ -180,8 +169,8 @@ const Index = () => {
           </p>
         </div>
         
-        {/* Plus icon positioned above the bottom navigation */}
-        <div className="fixed bottom-20 right-4 z-50">
+        {/* Navigation icons positioned above the bottom navigation */}
+        <div className="fixed bottom-20 right-4 flex flex-col gap-3 z-50">
           <Button
             variant="outline"
             size="icon"
@@ -189,6 +178,14 @@ const Index = () => {
             className="bg-wellness-sage hover:bg-wellness-sage-dark text-white border-0 w-12 h-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
           >
             <Plus className="h-6 w-6" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => navigate('/profile')}
+            className="glass-morphism border-wellness-sage/30 hover:bg-wellness-sage/10 w-12 h-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+          >
+            <User className="h-5 w-5 text-wellness-sage-dark" />
           </Button>
         </div>
       </div>
@@ -410,7 +407,7 @@ const Index = () => {
             ))}
             <Button 
               className="w-full mt-6 bg-wellness-sage hover:bg-wellness-sage-dark text-white shadow-md hover:shadow-lg transition-all"
-              onClick={() => navigate('/habits')}
+              onClick={() => navigate('/planning')}
             >
               <List className="h-4 w-4 mr-2" />
               View All Tasks
@@ -506,7 +503,7 @@ const Index = () => {
       <CreateTaskDialog
         isOpen={showCreateTask}
         onClose={() => setShowCreateTask(false)}
-        onSave={handleCreateTask}
+        onTaskCreate={handleCreateTask}
       />
     </div>
   );

@@ -125,25 +125,36 @@ const Index = () => {
     }
   };
 
-  const handleCreateTask = (newTask: any) => {
-    // Add the new task to the tasks list
+  const handleCreateTask = (taskData: any) => {
+    const newTask = {
+      id: Date.now().toString(),
+      ...taskData,
+      completed: false
+    };
+
+    // Add to the main tasks list
     const existingTasks = JSON.parse(localStorage.getItem("tasks") || "[]");
     const updatedTasks = [...existingTasks, newTask];
     localStorage.setItem("tasks", JSON.stringify(updatedTasks));
     
-    // Also add to upcoming tasks if it's for today
-    if (newTask.date === "Today") {
-      const existingUpcoming = JSON.parse(localStorage.getItem("upcomingTasks") || "[]");
-      const upcomingTask = {
-        id: parseInt(newTask.id),
-        task: newTask.name,
-        time: newTask.time === "Anytime" ? "Anytime" : newTask.time,
-        completed: false
-      };
-      const updatedUpcoming = [...existingUpcoming, upcomingTask];
-      localStorage.setItem("upcomingTasks", JSON.stringify(updatedUpcoming));
-      setUpcomingTasks(updatedUpcoming);
-    }
+    // Add to planning tasks
+    const existingPlanningTasks = JSON.parse(localStorage.getItem("planning_tasks") || "[]");
+    const updatedPlanningTasks = [...existingPlanningTasks, newTask];
+    localStorage.setItem("planning_tasks", JSON.stringify(updatedPlanningTasks));
+    
+    // Also add to upcoming tasks for today's view
+    const existingUpcoming = JSON.parse(localStorage.getItem("upcomingTasks") || "[]");
+    const upcomingTask = {
+      id: parseInt(newTask.id),
+      task: newTask.name,
+      time: newTask.time === "Anytime" ? "Anytime" : newTask.time,
+      completed: false
+    };
+    const updatedUpcoming = [...existingUpcoming, upcomingTask];
+    localStorage.setItem("upcomingTasks", JSON.stringify(updatedUpcoming));
+    setUpcomingTasks(updatedUpcoming);
+
+    toast.success("Task created successfully! 🎉");
   };
 
   const getGreeting = () => {

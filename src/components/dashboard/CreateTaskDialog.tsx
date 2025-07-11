@@ -1,12 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
@@ -18,7 +15,6 @@ import { cn } from "@/lib/utils";
 export interface Task {
   id: string;
   name: string;
-  description?: string;
   category: string;
   priority: 'Low' | 'Medium' | 'High';
   dueDate?: Date;
@@ -39,12 +35,13 @@ interface CreateTaskDialogProps {
 }
 
 const taskColors = [
-  { name: 'Purple', value: '#7C3AED' },
-  { name: 'Blue', value: '#2563EB' },
-  { name: 'Green', value: '#059669' },
-  { name: 'Orange', value: '#EA580C' },
-  { name: 'Pink', value: '#DC2626' },
-  { name: 'Teal', value: '#0891B2' },
+  { name: 'Pink', value: '#EC4899' },
+  { name: 'Orange', value: '#F59E0B' },
+  { name: 'Yellow', value: '#EAB308' },
+  { name: 'Green', value: '#10B981' },
+  { name: 'Purple', value: '#8B5CF6' },
+  { name: 'Teal', value: '#14B8A6' },
+  { name: 'Indigo', value: '#6366F1' },
 ];
 
 const categories = [
@@ -61,6 +58,15 @@ const timeSlots = [
   '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM', 'Anytime'
 ];
 
+const reminderOptions = [
+  { label: 'No Reminder', value: 'none' },
+  { label: 'At time of event', value: 'at_time' },
+  { label: '10 minutes early', value: '10_min' },
+  { label: '30 minutes early', value: '30_min' },
+  { label: '1 hour early', value: '1_hour' },
+  { label: 'Custom', value: 'custom' }
+];
+
 const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
@@ -69,44 +75,42 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   onSave,
   editingTask
 }) => {
-  const [taskName, setTaskName] = useState('');
-  const [description, setDescription] = useState('');
+  const [taskName, setTaskName] = useState('New Task');
   const [category, setCategory] = useState('General');
   const [priority, setPriority] = useState<'Low' | 'Medium' | 'High'>('Medium');
-  const [dueDate, setDueDate] = useState<Date>();
+  const [dueDate, setDueDate] = useState<Date>(new Date()); // Default to today
   const [time, setTime] = useState('Anytime');
   const [reminder, setReminder] = useState(false);
-  const [reminderTime, setReminderTime] = useState('9:00 AM');
+  const [reminderType, setReminderType] = useState('at_time');
+  const [customReminderTime, setCustomReminderTime] = useState('9:00 AM');
   const [repeat, setRepeat] = useState<typeof repeatOptions[number]>('No repeat');
   const [customDays, setCustomDays] = useState<string[]>([]);
-  const [selectedColor, setSelectedColor] = useState(taskColors[0].value);
+  const [selectedColor, setSelectedColor] = useState(taskColors[4].value); // Default to purple
 
   useEffect(() => {
     if (editingTask) {
       setTaskName(editingTask.name);
-      setDescription(editingTask.description || '');
       setCategory(editingTask.category);
       setPriority(editingTask.priority);
-      setDueDate(editingTask.dueDate);
+      setDueDate(editingTask.dueDate || new Date());
       setTime(editingTask.time || 'Anytime');
       setReminder(editingTask.reminder || false);
-      setReminderTime(editingTask.reminderTime || '9:00 AM');
       setRepeat(editingTask.repeat || 'No repeat');
       setCustomDays(editingTask.customDays || []);
-      setSelectedColor(editingTask.color || taskColors[0].value);
+      setSelectedColor(editingTask.color || taskColors[4].value);
     } else {
       // Reset form for new task
-      setTaskName('');
-      setDescription('');
+      setTaskName('New Task');
       setCategory('General');
       setPriority('Medium');
       setDueDate(new Date()); // Default to today
       setTime('Anytime');
       setReminder(false);
-      setReminderTime('9:00 AM');
+      setReminderType('at_time');
+      setCustomReminderTime('9:00 AM');
       setRepeat('No repeat');
       setCustomDays([]);
-      setSelectedColor(taskColors[0].value);
+      setSelectedColor(taskColors[4].value);
     }
   }, [editingTask, isOpen]);
 
@@ -121,15 +125,37 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   const handleSave = () => {
     if (!taskName.trim()) return;
 
+    let reminderTime;
+    if (reminder) {
+      switch (reminderType) {
+        case 'at_time':
+          reminderTime = time === 'Anytime' ? '9:00 AM' : time;
+          break;
+        case '10_min':
+          reminderTime = '10 minutes early';
+          break;
+        case '30_min':
+          reminderTime = '30 minutes early';
+          break;
+        case '1_hour':
+          reminderTime = '1 hour early';
+          break;
+        case 'custom':
+          reminderTime = customReminderTime;
+          break;
+        default:
+          reminderTime = undefined;
+      }
+    }
+
     const taskData: Omit<Task, 'id' | 'completed'> = {
       name: taskName.trim(),
-      description: description.trim(),
       category,
       priority,
       dueDate,
       time,
       reminder,
-      reminderTime: reminder ? reminderTime : undefined,
+      reminderTime,
       repeat,
       customDays: repeat === 'Custom' ? customDays : undefined,
       color: selectedColor
@@ -143,119 +169,164 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     onClose();
   };
 
-  const handleRepeatChange = (value: string) => {
-    setRepeat(value as typeof repeatOptions[number]);
+  const formatDateDisplay = (date: Date) => {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    if (date.toDateString() === today.toDateString()) {
+      return 'Today';
+    } else if (date.toDateString() === tomorrow.toDateString()) {
+      return 'Tomorrow';
+    } else {
+      return format(date, "EEE, MMM d");
+    }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="space-y-4">
+      <DialogContent className="w-full max-w-sm mx-4 max-h-[95vh] overflow-y-auto bg-white rounded-3xl p-0 border-0 shadow-2xl">
+        {/* Header */}
+        <DialogHeader className="relative p-6 pb-4">
           <div className="flex items-center justify-between">
             <Button
               variant="ghost"
               size="sm"
               onClick={handleClose}
-              className="p-2 hover:bg-gray-100 rounded-lg"
+              className="p-2 hover:bg-gray-100 rounded-full"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <DialogTitle className="text-lg font-semibold text-center flex-1">
-              {editingTask ? 'Edit Task' : 'Create New Task'}
+            <DialogTitle className="text-lg font-semibold text-gray-900">
+              Create
             </DialogTitle>
-            <div className="w-9" /> {/* Spacer for balance */}
+            <div className="w-9" />
+          </div>
+
+          {/* Task Icon */}
+          <div className="flex flex-col items-center mt-4 mb-6">
+            <div 
+              className="w-20 h-20 rounded-full flex items-center justify-center text-4xl mb-3"
+              style={{ backgroundColor: selectedColor }}
+            >
+              😊
+            </div>
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-gray-900 mb-1">{taskName}</h2>
+              <p className="text-sm text-gray-500">Tap to rename</p>
+            </div>
+          </div>
+
+          {/* Color Selection */}
+          <div className="flex justify-center gap-3 mb-6">
+            {taskColors.map((color) => (
+              <button
+                key={color.value}
+                onClick={() => setSelectedColor(color.value)}
+                className={`w-12 h-12 rounded-full border-2 transition-all ${
+                  selectedColor === color.value 
+                    ? 'border-gray-800 scale-110' 
+                    : 'border-transparent hover:border-gray-300'
+                }`}
+                style={{ backgroundColor: color.value }}
+              >
+                {selectedColor === color.value && (
+                  <div className="w-full h-full rounded-full flex items-center justify-center">
+                    ✓
+                  </div>
+                )}
+              </button>
+            ))}
           </div>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
-          {/* Task Name */}
-          <div className="space-y-2">
-            <Label htmlFor="taskName">Task Name</Label>
-            <Input
-              id="taskName"
-              placeholder="Enter task name"
-              value={taskName}
-              onChange={(e) => setTaskName(e.target.value)}
-              className="border-wellness-sage/30 focus:border-wellness-sage/50"
-            />
-          </div>
+        {/* Task Name Input */}
+        <div className="px-6 mb-4">
+          <Input
+            placeholder="New Task"
+            value={taskName}
+            onChange={(e) => setTaskName(e.target.value)}
+            className="text-center text-xl font-semibold border-0 bg-gray-50 rounded-2xl py-3 focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
 
-          {/* Description */}
-          <div className="space-y-2">
-            <Label htmlFor="description">Description (Optional)</Label>
-            <Textarea
-              id="description"
-              placeholder="Add details about your task"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="border-wellness-sage/30 focus:border-wellness-sage/50 min-h-[80px]"
-            />
-          </div>
-
-          {/* Category */}
-          <div className="space-y-2">
-            <Label>Category</Label>
-            <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className="border-wellness-sage/30 focus:border-wellness-sage/50">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map(cat => (
-                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Priority */}
-          <div className="space-y-2">
-            <Label>Priority</Label>
-            <Select value={priority} onValueChange={(value: 'Low' | 'Medium' | 'High') => setPriority(value)}>
-              <SelectTrigger className="border-wellness-sage/30 focus:border-wellness-sage/50">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Low">Low</SelectItem>
-                <SelectItem value="Medium">Medium</SelectItem>
-                <SelectItem value="High">High</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Due Date */}
-          <div className="space-y-2">
-            <Label>Due Date</Label>
+        {/* Options */}
+        <div className="px-6 space-y-4">
+          {/* Date */}
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
+            <div className="flex items-center gap-3">
+              <CalendarIcon className="h-5 w-5 text-gray-600" />
+              <span className="font-medium text-gray-700">Date</span>
+            </div>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal border-wellness-sage/30 hover:border-wellness-sage/50",
-                    !dueDate && "text-muted-foreground"
-                  )}
+                  variant="ghost"
+                  className="text-gray-600 hover:bg-gray-200 rounded-xl"
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dueDate ? format(dueDate, "PPP") : "Pick a date"}
+                  {formatDateDisplay(dueDate)} →
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
+              <PopoverContent className="w-auto p-0" align="end">
                 <Calendar
                   mode="single"
                   selected={dueDate}
-                  onSelect={setDueDate}
+                  onSelect={(date) => date && setDueDate(date)}
                   initialFocus
-                  defaultMonth={new Date()}
+                  className="pointer-events-auto"
                 />
               </PopoverContent>
             </Popover>
           </div>
 
-          {/* Time */}
-          <div className="space-y-2">
-            <Label>Time</Label>
-            <Select value={time} onValueChange={setTime}>
-              <SelectTrigger className="border-wellness-sage/30 focus:border-wellness-sage/50">
+          {/* Repeat */}
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
+            <div className="flex items-center gap-3">
+              <Clock className="h-5 w-5 text-gray-600" />
+              <span className="font-medium text-gray-700">Repeat</span>
+            </div>
+            <Select value={repeat} onValueChange={(value) => setRepeat(value as typeof repeatOptions[number])}>
+              <SelectTrigger className="border-0 bg-transparent hover:bg-gray-200 text-gray-600 w-auto">
                 <SelectValue />
+                <span className="ml-2">→</span>
+              </SelectTrigger>
+              <SelectContent>
+                {repeatOptions.map(option => (
+                  <SelectItem key={option} value={option}>{option}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Custom Days Selection */}
+          {repeat === 'Custom' && (
+            <div className="p-4 bg-gray-50 rounded-2xl">
+              <Label className="text-sm font-medium text-gray-700 mb-3 block">Select Days</Label>
+              <div className="flex flex-wrap gap-2">
+                {weekDays.map(day => (
+                  <label key={day} className="flex items-center space-x-2 cursor-pointer">
+                    <Checkbox
+                      checked={customDays.includes(day)}
+                      onCheckedChange={() => handleCustomDayToggle(day)}
+                      className="rounded"
+                    />
+                    <span className="text-sm">{day.slice(0, 3)}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Time */}
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
+            <div className="flex items-center gap-3">
+              <Clock className="h-5 w-5 text-gray-600" />
+              <span className="font-medium text-gray-700">Time</span>
+            </div>
+            <Select value={time} onValueChange={setTime}>
+              <SelectTrigger className="border-0 bg-transparent hover:bg-gray-200 text-gray-600 w-auto">
+                <SelectValue />
+                <span className="ml-2">→</span>
               </SelectTrigger>
               <SelectContent>
                 {timeSlots.map(slot => (
@@ -265,110 +336,64 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
             </Select>
           </div>
 
-          {/* Repeat */}
-          <div className="space-y-3">
-            <Label>Repeat</Label>
-            <Select value={repeat} onValueChange={handleRepeatChange}>
-              <SelectTrigger className="border-wellness-sage/30 focus:border-wellness-sage/50">
+          {/* Reminder */}
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
+            <div className="flex items-center gap-3">
+              <Bell className="h-5 w-5 text-gray-600" />
+              <span className="font-medium text-gray-700">Reminder</span>
+            </div>
+            <Select 
+              value={reminder ? reminderType : 'none'} 
+              onValueChange={(value) => {
+                if (value === 'none') {
+                  setReminder(false);
+                } else {
+                  setReminder(true);
+                  setReminderType(value);
+                }
+              }}
+            >
+              <SelectTrigger className="border-0 bg-transparent hover:bg-gray-200 text-gray-600 w-auto">
                 <SelectValue />
+                <span className="ml-2">→</span>
               </SelectTrigger>
               <SelectContent>
-                {repeatOptions.map(option => (
-                  <SelectItem key={option} value={option}>{option}</SelectItem>
+                {reminderOptions.map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+          </div>
 
-            {/* Custom Days Selection */}
-            {repeat === 'Custom' && (
-              <div className="space-y-2">
-                <Label className="text-sm">Select Days</Label>
-                <div className="flex flex-wrap gap-2">
-                  {weekDays.map(day => (
-                    <div key={day} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={day}
-                        checked={customDays.includes(day)}
-                        onCheckedChange={() => handleCustomDayToggle(day)}
-                      />
-                      <Label
-                        htmlFor={day}
-                        className="text-sm font-normal cursor-pointer"
-                      >
-                        {day.slice(0, 3)}
-                      </Label>
-                    </div>
+          {/* Custom Reminder Time */}
+          {reminder && reminderType === 'custom' && (
+            <div className="p-4 bg-gray-50 rounded-2xl">
+              <Label className="text-sm font-medium text-gray-700 mb-3 block">Custom Reminder Time</Label>
+              <Select value={customReminderTime} onValueChange={setCustomReminderTime}>
+                <SelectTrigger className="border-gray-300">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {timeSlots.filter(slot => slot !== 'Anytime').map(slot => (
+                    <SelectItem key={slot} value={slot}>{slot}</SelectItem>
                   ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Reminder */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="reminder">Reminder</Label>
-              <Switch
-                id="reminder"
-                checked={reminder}
-                onCheckedChange={setReminder}
-              />
+                </SelectContent>
+              </Select>
             </div>
+          )}
+        </div>
 
-            {reminder && (
-              <div className="space-y-2">
-                <Label>Reminder Time</Label>
-                <Select value={reminderTime} onValueChange={setReminderTime}>
-                  <SelectTrigger className="border-wellness-sage/30 focus:border-wellness-sage/50">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {timeSlots.filter(slot => slot !== 'Anytime').map(slot => (
-                      <SelectItem key={slot} value={slot}>{slot}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-          </div>
-
-          {/* Task Color */}
-          <div className="space-y-2">
-            <Label>Task Color</Label>
-            <div className="flex gap-2 flex-wrap">
-              {taskColors.map(color => (
-                <button
-                  key={color.value}
-                  onClick={() => setSelectedColor(color.value)}
-                  className={`w-8 h-8 rounded-full border-2 transition-all ${
-                    selectedColor === color.value 
-                      ? 'border-gray-400 scale-110' 
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                  style={{ backgroundColor: color.value }}
-                  title={color.name}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex gap-3 pt-4">
-            <Button
-              variant="outline"
-              onClick={handleClose}
-              className="flex-1 border-gray-300 hover:bg-gray-50"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSave}
-              disabled={!taskName.trim()}
-              className="flex-1 bg-wellness-sage hover:bg-wellness-sage-dark text-white"
-            >
-              {editingTask ? 'Update Task' : 'Create Task'}
-            </Button>
-          </div>
+        {/* Create Button */}
+        <div className="p-6 pt-8">
+          <Button
+            onClick={handleSave}
+            disabled={!taskName.trim()}
+            className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-4 rounded-2xl text-lg"
+          >
+            Create Task
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

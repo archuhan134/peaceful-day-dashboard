@@ -255,7 +255,7 @@ const Auth = () => {
             variant="outline"
             className="w-full border-wellness-lavender/30 hover:bg-wellness-lavender/10 text-wellness-lavender-dark"
           >
-            Continue as Demo User
+            Login as Guest
           </Button>
         </CardContent>
       </Card>

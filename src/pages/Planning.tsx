@@ -324,7 +324,8 @@ const Planning = () => {
           <div className="mt-4 flex flex-col sm:flex-row gap-3">
             <Button 
               onClick={() => setIsTaskDialogOpen(true)}
-              className="bg-black hover:bg-gray-800 text-white rounded-xl px-4 py-2 text-sm"
+              className="bg-blue-500 hover:bg-blue-600 text-white rounded-xl px-4 py-2 text-sm shadow-md hover:shadow-lg transition-all"
+              style={{ backgroundColor: '#4C7EFF' }}
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Detailed Task

@@ -168,13 +168,27 @@ const Index = () => {
           </p>
         </div>
         
-        {/* Navigation icons positioned above the bottom navigation */}
-        <div className="fixed bottom-20 right-4 flex flex-col gap-3 z-50">
+        {/* Draggable Plus Icon positioned above the bottom navigation */}
+        <div 
+          className="fixed bottom-20 right-4 flex flex-col gap-3 z-50 cursor-move"
+          draggable
+          onDragStart={(e) => {
+            e.dataTransfer.effectAllowed = "move";
+          }}
+          onDrag={(e) => {
+            if (e.clientX === 0 && e.clientY === 0) return; // Ignore invalid coordinates
+            const element = e.currentTarget;
+            element.style.left = `${e.clientX - 24}px`; // Center the icon
+            element.style.top = `${e.clientY - 24}px`;
+            element.style.right = 'auto';
+            element.style.bottom = 'auto';
+          }}
+        >
           <Button
             variant="outline"
             size="icon"
             onClick={() => setShowCreateTask(true)}
-            className="bg-wellness-sage hover:bg-wellness-sage-dark text-white border-0 w-12 h-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+            className="bg-wellness-sage hover:bg-wellness-sage-dark text-white border-0 w-12 h-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 pointer-events-auto"
           >
             <Plus className="h-6 w-6" />
           </Button>

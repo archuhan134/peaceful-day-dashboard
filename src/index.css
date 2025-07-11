@@ -182,3 +182,23 @@ All colors MUST be HSL.
 .page-content {
   @apply pb-20 lg:pb-4;
 }
+
+/* Apply bottom padding to all main content areas */
+main, 
+.main-content, 
+[data-page],
+body > div:first-child,
+#root > div:first-child {
+  @apply pb-24;
+}
+
+/* For desktop, reduce bottom padding */
+@media (min-width: 1024px) {
+  main, 
+  .main-content, 
+  [data-page],
+  body > div:first-child,
+  #root > div:first-child {
+    @apply pb-8;
+  }
+}

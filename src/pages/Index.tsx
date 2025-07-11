@@ -180,8 +180,8 @@ const Index = () => {
           </p>
         </div>
         
-        {/* Navigation icons positioned above the bottom navigation */}
-        <div className="fixed bottom-20 right-4 flex flex-col gap-3 z-50">
+        {/* Plus icon positioned above the bottom navigation */}
+        <div className="fixed bottom-20 right-4 z-50">
           <Button
             variant="outline"
             size="icon"
@@ -189,14 +189,6 @@ const Index = () => {
             className="bg-wellness-sage hover:bg-wellness-sage-dark text-white border-0 w-12 h-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
           >
             <Plus className="h-6 w-6" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => navigate('/profile')}
-            className="glass-morphism border-wellness-sage/30 hover:bg-wellness-sage/10 w-12 h-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
-          >
-            <User className="h-5 w-5 text-wellness-sage-dark" />
           </Button>
         </div>
       </div>

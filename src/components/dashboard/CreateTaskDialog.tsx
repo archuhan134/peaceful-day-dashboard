@@ -185,215 +185,216 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full max-w-sm mx-4 max-h-[95vh] overflow-y-auto bg-white rounded-3xl p-0 border-0 shadow-2xl">
-        {/* Header */}
-        <DialogHeader className="relative p-6 pb-4">
-          <div className="flex items-center justify-between">
+      <DialogContent className="w-full max-w-md mx-4 max-h-[95vh] overflow-y-auto bg-white rounded-3xl p-0 border-0 shadow-2xl">
+        {/* Header with Back Button */}
+        <div className="sticky top-0 bg-white/95 backdrop-blur-md z-10 rounded-t-3xl">
+          <div className="flex items-center justify-between p-4 border-b border-gray-100">
             <Button
               variant="ghost"
               size="sm"
               onClick={handleClose}
-              className="p-2 hover:bg-gray-100 rounded-full"
+              className="p-2 hover:bg-gray-100 rounded-full transition-all"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <DialogTitle className="text-lg font-semibold text-gray-900">
-              Create
-            </DialogTitle>
+            <h3 className="text-lg font-semibold text-gray-900">Create Task</h3>
             <div className="w-9" />
           </div>
+        </div>
 
-          {/* Task Icon */}
-          <div className="flex flex-col items-center mt-4 mb-6">
+        {/* Main Content Container */}
+        <div className="px-6 py-4">
+          {/* Task Icon & Title Section - Compact */}
+          <div className="flex flex-col items-center mb-6">
             <div 
-              className="w-20 h-20 rounded-full flex items-center justify-center text-4xl mb-3"
+              className="w-16 h-16 rounded-full flex items-center justify-center text-3xl mb-3 shadow-lg"
               style={{ backgroundColor: selectedColor }}
             >
               😊
             </div>
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-900 mb-1">{taskName}</h2>
-              <p className="text-sm text-gray-500">Tap to rename</p>
+              <h2 className="text-xl font-bold text-gray-900 mb-1">{taskName}</h2>
+              <p className="text-xs text-gray-500">Tap to rename</p>
             </div>
           </div>
 
-          {/* Color Selection */}
-          <div className="flex justify-center gap-3 mb-6">
+          {/* Compact Color Selection */}
+          <div className="flex justify-center gap-2 mb-6">
             {taskColors.map((color) => (
               <button
                 key={color.value}
                 onClick={() => setSelectedColor(color.value)}
-                className={`w-12 h-12 rounded-full border-2 transition-all ${
+                className={`w-10 h-10 rounded-full border-2 transition-all ${
                   selectedColor === color.value 
-                    ? 'border-gray-800 scale-110' 
+                    ? 'border-gray-800 scale-110 shadow-md' 
                     : 'border-transparent hover:border-gray-300'
                 }`}
                 style={{ backgroundColor: color.value }}
               >
                 {selectedColor === color.value && (
-                  <div className="w-full h-full rounded-full flex items-center justify-center">
+                  <div className="w-full h-full rounded-full flex items-center justify-center text-white text-sm">
                     ✓
                   </div>
                 )}
               </button>
             ))}
           </div>
-        </DialogHeader>
 
-        {/* Task Name Input */}
-        <div className="px-6 mb-4">
-          <Input
-            placeholder="New Task"
-            value={taskName}
-            onChange={(e) => setTaskName(e.target.value)}
-            className="text-center text-xl font-semibold border-0 bg-gray-50 rounded-2xl py-3 focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        {/* Options */}
-        <div className="px-6 space-y-4">
-          {/* Date */}
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
-            <div className="flex items-center gap-3">
-              <CalendarIcon className="h-5 w-5 text-gray-600" />
-              <span className="font-medium text-gray-700">Date</span>
-            </div>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="text-gray-600 hover:bg-gray-200 rounded-xl"
-                >
-                  {formatDateDisplay(dueDate)} →
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="end">
-                <Calendar
-                  mode="single"
-                  selected={dueDate}
-                  onSelect={(date) => date && setDueDate(date)}
-                  initialFocus
-                  className="pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
+          {/* Task Name Input */}
+          <div className="mb-6">
+            <Input
+              placeholder="New Task"
+              value={taskName}
+              onChange={(e) => setTaskName(e.target.value)}
+              className="text-center text-lg font-semibold border border-gray-200 bg-gray-50 rounded-2xl py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
           </div>
 
-          {/* Repeat */}
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
-            <div className="flex items-center gap-3">
-              <Clock className="h-5 w-5 text-gray-600" />
-              <span className="font-medium text-gray-700">Repeat</span>
-            </div>
-            <Select value={repeat} onValueChange={(value) => setRepeat(value as typeof repeatOptions[number])}>
-              <SelectTrigger className="border-0 bg-transparent hover:bg-gray-200 text-gray-600 w-auto">
-                <SelectValue />
-                <span className="ml-2">→</span>
-              </SelectTrigger>
-              <SelectContent>
-                {repeatOptions.map(option => (
-                  <SelectItem key={option} value={option}>{option}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Custom Days Selection */}
-          {repeat === 'Custom' && (
-            <div className="p-4 bg-gray-50 rounded-2xl">
-              <Label className="text-sm font-medium text-gray-700 mb-3 block">Select Days</Label>
-              <div className="flex flex-wrap gap-2">
-                {weekDays.map(day => (
-                  <label key={day} className="flex items-center space-x-2 cursor-pointer">
-                    <Checkbox
-                      checked={customDays.includes(day)}
-                      onCheckedChange={() => handleCustomDayToggle(day)}
-                      className="rounded"
-                    />
-                    <span className="text-sm">{day.slice(0, 3)}</span>
-                  </label>
-                ))}
+          {/* Form Options */}
+          <div className="space-y-3">
+            {/* Date */}
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div className="flex items-center gap-3">
+                <CalendarIcon className="h-4 w-4 text-gray-600" />
+                <span className="font-medium text-gray-700 text-sm">Date</span>
               </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="text-gray-600 hover:bg-gray-200 rounded-lg text-sm px-3 py-1"
+                  >
+                    {formatDateDisplay(dueDate)} →
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="end">
+                  <Calendar
+                    mode="single"
+                    selected={dueDate}
+                    onSelect={(date) => date && setDueDate(date)}
+                    initialFocus
+                    className="pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
-          )}
 
-          {/* Time */}
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
-            <div className="flex items-center gap-3">
-              <Clock className="h-5 w-5 text-gray-600" />
-              <span className="font-medium text-gray-700">Time</span>
-            </div>
-            <Select value={time} onValueChange={setTime}>
-              <SelectTrigger className="border-0 bg-transparent hover:bg-gray-200 text-gray-600 w-auto">
-                <SelectValue />
-                <span className="ml-2">→</span>
-              </SelectTrigger>
-              <SelectContent>
-                {timeSlots.map(slot => (
-                  <SelectItem key={slot} value={slot}>{slot}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Reminder */}
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
-            <div className="flex items-center gap-3">
-              <Bell className="h-5 w-5 text-gray-600" />
-              <span className="font-medium text-gray-700">Reminder</span>
-            </div>
-            <Select 
-              value={reminder ? reminderType : 'none'} 
-              onValueChange={(value) => {
-                if (value === 'none') {
-                  setReminder(false);
-                } else {
-                  setReminder(true);
-                  setReminderType(value);
-                }
-              }}
-            >
-              <SelectTrigger className="border-0 bg-transparent hover:bg-gray-200 text-gray-600 w-auto">
-                <SelectValue />
-                <span className="ml-2">→</span>
-              </SelectTrigger>
-              <SelectContent>
-                {reminderOptions.map(option => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Custom Reminder Time */}
-          {reminder && reminderType === 'custom' && (
-            <div className="p-4 bg-gray-50 rounded-2xl">
-              <Label className="text-sm font-medium text-gray-700 mb-3 block">Custom Reminder Time</Label>
-              <Select value={customReminderTime} onValueChange={setCustomReminderTime}>
-                <SelectTrigger className="border-gray-300">
+            {/* Repeat */}
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div className="flex items-center gap-3">
+                <Clock className="h-4 w-4 text-gray-600" />
+                <span className="font-medium text-gray-700 text-sm">Repeat</span>
+              </div>
+              <Select value={repeat} onValueChange={(value) => setRepeat(value as typeof repeatOptions[number])}>
+                <SelectTrigger className="border-0 bg-transparent hover:bg-gray-200 text-gray-600 w-auto text-sm">
                   <SelectValue />
+                  <span className="ml-2">→</span>
                 </SelectTrigger>
                 <SelectContent>
-                  {timeSlots.filter(slot => slot !== 'Anytime').map(slot => (
+                  {repeatOptions.map(option => (
+                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Custom Days Selection */}
+            {repeat === 'Custom' && (
+              <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                <Label className="text-xs font-medium text-gray-700 mb-2 block">Select Days</Label>
+                <div className="flex flex-wrap gap-2">
+                  {weekDays.map(day => (
+                    <label key={day} className="flex items-center space-x-1 cursor-pointer">
+                      <Checkbox
+                        checked={customDays.includes(day)}
+                        onCheckedChange={() => handleCustomDayToggle(day)}
+                        className="rounded w-4 h-4"
+                      />
+                      <span className="text-xs">{day.slice(0, 3)}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Time */}
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div className="flex items-center gap-3">
+                <Clock className="h-4 w-4 text-gray-600" />
+                <span className="font-medium text-gray-700 text-sm">Time</span>
+              </div>
+              <Select value={time} onValueChange={setTime}>
+                <SelectTrigger className="border-0 bg-transparent hover:bg-gray-200 text-gray-600 w-auto text-sm">
+                  <SelectValue />
+                  <span className="ml-2">→</span>
+                </SelectTrigger>
+                <SelectContent>
+                  {timeSlots.map(slot => (
                     <SelectItem key={slot} value={slot}>{slot}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-          )}
-        </div>
 
-        {/* Create Button */}
-        <div className="p-6 pt-8">
-          <Button
-            onClick={handleSave}
-            disabled={!taskName.trim()}
-            className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-4 rounded-2xl text-lg"
-          >
-            Create Task
-          </Button>
+            {/* Reminder */}
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div className="flex items-center gap-3">
+                <Bell className="h-4 w-4 text-gray-600" />
+                <span className="font-medium text-gray-700 text-sm">Reminder</span>
+              </div>
+              <Select 
+                value={reminder ? reminderType : 'none'} 
+                onValueChange={(value) => {
+                  if (value === 'none') {
+                    setReminder(false);
+                  } else {
+                    setReminder(true);
+                    setReminderType(value);
+                  }
+                }}
+              >
+                <SelectTrigger className="border-0 bg-transparent hover:bg-gray-200 text-gray-600 w-auto text-sm">
+                  <SelectValue />
+                  <span className="ml-2">→</span>
+                </SelectTrigger>
+                <SelectContent>
+                  {reminderOptions.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Custom Reminder Time */}
+            {reminder && reminderType === 'custom' && (
+              <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                <Label className="text-xs font-medium text-gray-700 mb-2 block">Custom Reminder Time</Label>
+                <Select value={customReminderTime} onValueChange={setCustomReminderTime}>
+                  <SelectTrigger className="border-gray-200 text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {timeSlots.filter(slot => slot !== 'Anytime').map(slot => (
+                      <SelectItem key={slot} value={slot}>{slot}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
+
+          {/* Create Button - Fixed at bottom */}
+          <div className="sticky bottom-0 bg-white/95 backdrop-blur-md p-4 mt-6 border-t border-gray-100 rounded-b-3xl">
+            <Button
+              onClick={handleSave}
+              disabled={!taskName.trim()}
+              className="w-full bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white font-semibold py-4 rounded-2xl text-base transition-all"
+            >
+              Create Task
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

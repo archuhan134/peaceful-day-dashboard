@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { MoodSelector } from "@/components/dashboard/MoodSelector";
-import CreateTaskDialog from "@/components/dashboard/CreateTaskDialog";
+import { CreateTaskDialog } from "@/components/dashboard/CreateTaskDialog";
 import AppHeader from "@/components/AppHeader";
 import { toast } from "sonner";
 

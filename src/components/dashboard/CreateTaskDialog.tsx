@@ -1,372 +1,393 @@
 
-import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Switch } from "@/components/ui/switch";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Calendar as CalendarIcon, Clock, Bell, X, Plus } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
-
-export interface Task {
-  id: string;
-  name: string;
-  description?: string;
-  category: string;
-  priority: 'Low' | 'Medium' | 'High';
-  dueDate?: Date;
-  time?: string;
-  reminder?: boolean;
-  reminderTime?: string;
-  repeat?: 'No repeat' | 'Daily' | 'Weekly' | 'Monthly' | 'Weekends' | 'Custom';
-  customDays?: string[];
-  color?: string;
-  completed: boolean;
-}
+import { Calendar, Repeat, Clock, Bell, ArrowLeft, Check } from "lucide-react";
+import { toast } from "sonner";
 
 interface CreateTaskDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (task: Omit<Task, 'id' | 'completed'>) => void;
-  editingTask?: Task | null;
+  onTaskCreate: (task: any) => void;
 }
 
-const taskColors = [
-  { name: 'Purple', value: '#7C3AED' },
-  { name: 'Blue', value: '#2563EB' },
-  { name: 'Green', value: '#059669' },
-  { name: 'Orange', value: '#EA580C' },
-  { name: 'Pink', value: '#DC2626' },
-  { name: 'Teal', value: '#0891B2' },
-];
+const CreateTaskDialog = ({ isOpen, onClose, onTaskCreate }: CreateTaskDialogProps) => {
+  const [taskName, setTaskName] = useState("");
+  const [selectedColor, setSelectedColor] = useState("#7C3AED");
+  const [date, setDate] = useState("Today");
+  const [repeat, setRepeat] = useState("No repeat");
+  const [time, setTime] = useState("09:00");
+  const [timeEnabled, setTimeEnabled] = useState(false);
+  const [reminder, setReminder] = useState("No Reminder");
+  const [reminderEnabled, setReminderEnabled] = useState(false);
+  
+  // UI state
+  const [showRepeatOptions, setShowRepeatOptions] = useState(false);
+  const [showTimeOptions, setShowTimeOptions] = useState(false);
+  const [showReminderOptions, setShowReminderOptions] = useState(false);
 
-const categories = [
-  'Work', 'Personal', 'Health', 'Education', 'Finance', 'Social', 'Hobbies', 'General'
-];
+  const colors = [
+    "#EC4899", "#F59E0B", "#EAB308", "#84CC16", 
+    "#7C3AED", "#06B6D4", "#A855F7"
+  ];
 
-const repeatOptions = [
-  'No repeat', 'Daily', 'Weekly', 'Monthly', 'Weekends', 'Custom'
-];
+  const repeatOptions = [
+    "No repeat",
+    "Daily", 
+    "Weekly",
+    "Monthly",
+    "Weekends (Sat, Sun)"
+  ];
 
-const timeSlots = [
-  '6:00 AM', '7:00 AM', '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM',
-  '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM',
-  '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM', 'Anytime'
-];
+  const reminderOptions = [
+    "No Reminder",
+    "At time of event",
+    "10 minutes early",
+    "30 minutes early", 
+    "1 hour early"
+  ];
 
-const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-
-export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
-  isOpen,
-  onClose,
-  onSave,
-  editingTask
-}) => {
-  const [taskName, setTaskName] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('General');
-  const [priority, setPriority] = useState<'Low' | 'Medium' | 'High'>('Medium');
-  const [dueDate, setDueDate] = useState<Date>();
-  const [time, setTime] = useState('Anytime');
-  const [reminder, setReminder] = useState(false);
-  const [reminderTime, setReminderTime] = useState('9:00 AM');
-  const [repeat, setRepeat] = useState<'No repeat' | 'Daily' | 'Weekly' | 'Monthly' | 'Weekends' | 'Custom'>('No repeat');
-  const [customDays, setCustomDays] = useState<string[]>([]);
-  const [selectedColor, setSelectedColor] = useState(taskColors[0].value);
-
-  useEffect(() => {
-    if (editingTask) {
-      setTaskName(editingTask.name);
-      setDescription(editingTask.description || '');
-      setCategory(editingTask.category);
-      setPriority(editingTask.priority);
-      setDueDate(editingTask.dueDate);
-      setTime(editingTask.time || 'Anytime');
-      setReminder(editingTask.reminder || false);
-      setReminderTime(editingTask.reminderTime || '9:00 AM');
-      setRepeat(editingTask.repeat || 'No repeat');
-      setCustomDays(editingTask.customDays || []);
-      setSelectedColor(editingTask.color || taskColors[0].value);
-    } else {
-      // Reset form for new task
-      setTaskName('');
-      setDescription('');
-      setCategory('General');
-      setPriority('Medium');
-      setDueDate(new Date()); // Default to today
-      setTime('Anytime');
-      setReminder(false);
-      setReminderTime('9:00 AM');
-      setRepeat('No repeat');
-      setCustomDays([]);
-      setSelectedColor(taskColors[0].value);
+  const handleCreateTask = () => {
+    if (!taskName.trim()) {
+      toast.error("Please enter a task name");
+      return;
     }
-  }, [editingTask, isOpen]);
 
-  const handleCustomDayToggle = (day: string) => {
-    setCustomDays(prev => 
-      prev.includes(day) 
-        ? prev.filter(d => d !== day)
-        : [...prev, day]
-    );
-  };
+    const taskTime = timeEnabled ? time : "Anytime";
+    const taskReminder = reminderEnabled ? reminder : "No Reminder";
 
-  const handleSave = () => {
-    if (!taskName.trim()) return;
-
-    const taskData: Omit<Task, 'id' | 'completed'> = {
-      name: taskName.trim(),
-      description: description.trim(),
-      category,
-      priority,
-      dueDate,
-      time,
-      reminder,
-      reminderTime: reminder ? reminderTime : undefined,
+    const newTask = {
+      id: Date.now().toString(),
+      name: taskName,
+      color: selectedColor,
+      date,
       repeat,
-      customDays: repeat === 'Custom' ? customDays : undefined,
-      color: selectedColor
+      time: taskTime,
+      reminder: taskReminder,
+      completed: false,
+      createdAt: new Date().toISOString()
     };
 
-    onSave(taskData);
+    onTaskCreate(newTask);
+    toast.success("Task created successfully!");
+    
+    // Reset form
+    setTaskName("");
+    setSelectedColor("#7C3AED");
+    setDate("Today");
+    setRepeat("No repeat");
+    setTime("09:00");
+    setTimeEnabled(false);
+    setReminder("No Reminder");
+    setReminderEnabled(false);
+    setShowRepeatOptions(false);
+    setShowTimeOptions(false);
+    setShowReminderOptions(false);
     onClose();
   };
 
-  const handleClose = () => {
-    onClose();
+  const formatTime = (timeStr: string) => {
+    const [hours, minutes] = timeStr.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+    return `${displayHour}:${minutes} ${ampm}`;
   };
 
-  return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="space-y-4">
-          <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleClose}
-              className="p-2 hover:bg-gray-100 rounded-lg"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <DialogTitle className="text-lg font-semibold text-center flex-1">
-              {editingTask ? 'Edit Task' : 'Create New Task'}
-            </DialogTitle>
-            <div className="w-9" /> {/* Spacer for balance */}
-          </div>
-        </DialogHeader>
+  const getCurrentDate = () => {
+    const today = new Date();
+    return today.toLocaleDateString('en-US', { 
+      weekday: 'long',
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
 
-        <div className="space-y-6 py-4">
-          {/* Task Name */}
-          <div className="space-y-2">
-            <Label htmlFor="taskName">Task Name</Label>
-            <Input
-              id="taskName"
-              placeholder="Enter task name"
-              value={taskName}
-              onChange={(e) => setTaskName(e.target.value)}
-              className="border-wellness-sage/30 focus:border-wellness-sage/50"
-            />
-          </div>
+  if (showRepeatOptions) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-md bg-gradient-to-br from-wellness-sky/10 to-wellness-lavender/10 rounded-2xl">
+          <DialogHeader className="text-center">
+            <div className="flex items-center justify-between mb-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowRepeatOptions(false)}
+                className="text-wellness-sage-dark hover:bg-wellness-sage/10"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <DialogTitle className="text-xl text-wellness-sage-dark">Set task repeat</DialogTitle>
+              <div className="w-10"></div>
+            </div>
+          </DialogHeader>
 
-          {/* Description */}
-          <div className="space-y-2">
-            <Label htmlFor="description">Description (Optional)</Label>
-            <Textarea
-              id="description"
-              placeholder="Add details about your task"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="border-wellness-sage/30 focus:border-wellness-sage/50 min-h-[80px]"
-            />
-          </div>
-
-          {/* Category */}
-          <div className="space-y-2">
-            <Label>Category</Label>
-            <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className="border-wellness-sage/30 focus:border-wellness-sage/50">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map(cat => (
-                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Priority */}
-          <div className="space-y-2">
-            <Label>Priority</Label>
-            <Select value={priority} onValueChange={(value: 'Low' | 'Medium' | 'High') => setPriority(value)}>
-              <SelectTrigger className="border-wellness-sage/30 focus:border-wellness-sage/50">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Low">Low</SelectItem>
-                <SelectItem value="Medium">Medium</SelectItem>
-                <SelectItem value="High">High</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Due Date */}
-          <div className="space-y-2">
-            <Label>Due Date</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal border-wellness-sage/30 hover:border-wellness-sage/50",
-                    !dueDate && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dueDate ? format(dueDate, "PPP") : "Pick a date"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={dueDate}
-                  onSelect={setDueDate}
-                  initialFocus
-                  defaultMonth={new Date()}
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          {/* Time */}
-          <div className="space-y-2">
-            <Label>Time</Label>
-            <Select value={time} onValueChange={setTime}>
-              <SelectTrigger className="border-wellness-sage/30 focus:border-wellness-sage/50">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {timeSlots.map(slot => (
-                  <SelectItem key={slot} value={slot}>{slot}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Repeat */}
           <div className="space-y-3">
-            <Label>Repeat</Label>
-            <Select value={repeat} onValueChange={setRepeat}>
-              <SelectTrigger className="border-wellness-sage/30 focus:border-wellness-sage/50">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {repeatOptions.map(option => (
-                  <SelectItem key={option} value={option}>{option}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {repeatOptions.map((option) => (
+              <div
+                key={option}
+                onClick={() => {
+                  setRepeat(option);
+                  setShowRepeatOptions(false);
+                }}
+                className={`flex items-center justify-between p-4 rounded-xl cursor-pointer transition-all ${
+                  repeat === option 
+                    ? "bg-wellness-sage/20 border-2 border-wellness-sage" 
+                    : "bg-white hover:bg-wellness-sage/10 border border-wellness-sage/20"
+                }`}
+              >
+                <span className="font-medium text-wellness-sage-dark">{option}</span>
+                {repeat === option && (
+                  <div className="w-6 h-6 rounded-full bg-wellness-sage flex items-center justify-center">
+                    <Check className="h-4 w-4 text-white" />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
-            {/* Custom Days Selection */}
-            {repeat === 'Custom' && (
-              <div className="space-y-2">
-                <Label className="text-sm">Select Days</Label>
-                <div className="flex flex-wrap gap-2">
-                  {weekDays.map(day => (
-                    <div key={day} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={day}
-                        checked={customDays.includes(day)}
-                        onCheckedChange={() => handleCustomDayToggle(day)}
-                      />
-                      <Label
-                        htmlFor={day}
-                        className="text-sm font-normal cursor-pointer"
-                      >
-                        {day.slice(0, 3)}
-                      </Label>
-                    </div>
-                  ))}
+  if (showTimeOptions) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-md bg-gradient-to-br from-wellness-sky/10 to-wellness-lavender/10 rounded-2xl">
+          <DialogHeader className="text-center">
+            <div className="flex items-center justify-between mb-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowTimeOptions(false)}
+                className="text-wellness-sage-dark hover:bg-wellness-sage/10"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <DialogTitle className="text-xl text-wellness-sage-dark">Do it at {formatTime(time)} of the day</DialogTitle>
+              <div className="w-10"></div>
+            </div>
+          </DialogHeader>
+
+          <div className="space-y-6">
+            <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-wellness-sage/20">
+              <div className="flex items-center gap-3">
+                <Clock className="h-5 w-5 text-wellness-sage-dark" />
+                <div>
+                  <div className="font-medium text-wellness-sage-dark">Specified time</div>
+                  <div className="text-sm text-wellness-sage-dark/70">Set a specific time to do it</div>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setTimeEnabled(!timeEnabled)}
+                className={`w-12 h-6 rounded-full transition-colors ${
+                  timeEnabled ? "bg-wellness-sage" : "bg-gray-300"
+                }`}
+              >
+                <div className={`w-4 h-4 rounded-full bg-white transition-transform ${
+                  timeEnabled ? "translate-x-3" : "-translate-x-3"
+                }`} />
+              </Button>
+            </div>
+
+            {timeEnabled && (
+              <div className="space-y-4">
+                <div className="text-center">
+                  <Input
+                    type="time"
+                    value={time}
+                    onChange={(e) => setTime(e.target.value)}
+                    className="text-center text-2xl font-bold border-wellness-sage/30 focus:border-wellness-sage"
+                  />
                 </div>
               </div>
             )}
-          </div>
 
-          {/* Reminder */}
+            <Button
+              onClick={() => setShowTimeOptions(false)}
+              className="w-full bg-wellness-sage hover:bg-wellness-sage-dark text-white"
+            >
+              Confirm Time
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (showReminderOptions) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-md bg-gradient-to-br from-wellness-sky/10 to-wellness-lavender/10 rounded-2xl">
+          <DialogHeader className="text-center">
+            <div className="flex items-center justify-between mb-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowReminderOptions(false)}
+                className="text-wellness-sage-dark hover:bg-wellness-sage/10"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <DialogTitle className="text-xl text-wellness-sage-dark">Set reminder</DialogTitle>
+              <div className="w-10"></div>
+            </div>
+          </DialogHeader>
+
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="reminder">Reminder</Label>
-              <Switch
-                id="reminder"
-                checked={reminder}
-                onCheckedChange={setReminder}
-              />
-            </div>
-
-            {reminder && (
-              <div className="space-y-2">
-                <Label>Reminder Time</Label>
-                <Select value={reminderTime} onValueChange={setReminderTime}>
-                  <SelectTrigger className="border-wellness-sage/30 focus:border-wellness-sage/50">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {timeSlots.filter(slot => slot !== 'Anytime').map(slot => (
-                      <SelectItem key={slot} value={slot}>{slot}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            {reminderOptions.map((option) => (
+              <div
+                key={option}
+                onClick={() => {
+                  setReminder(option);
+                  setReminderEnabled(option !== "No Reminder");
+                  setShowReminderOptions(false);
+                }}
+                className={`flex items-center justify-between p-4 rounded-xl cursor-pointer transition-all ${
+                  reminder === option 
+                    ? "bg-wellness-sage/20 border-2 border-wellness-sage" 
+                    : "bg-white hover:bg-wellness-sage/10 border border-wellness-sage/20"
+                }`}
+              >
+                <span className="font-medium text-wellness-sage-dark">{option}</span>
+                {reminder === option && (
+                  <div className="w-6 h-6 rounded-full bg-wellness-sage flex items-center justify-center">
+                    <Check className="h-4 w-4 text-white" />
+                  </div>
+                )}
               </div>
-            )}
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md bg-gradient-to-br from-wellness-sky/10 to-wellness-lavender/10 rounded-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="text-center">
+          <div className="flex items-center justify-between mb-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="text-wellness-sage-dark hover:bg-wellness-sage/10"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div className="text-center">
+              <div className="mx-auto w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-500 rounded-full flex items-center justify-center mb-2">
+                <span className="text-2xl">😊</span>
+              </div>
+              <DialogTitle className="text-xl text-wellness-sage-dark">New Task</DialogTitle>
+              <p className="text-sm text-wellness-sage-dark/70">Tap to rename</p>
+            </div>
+            <Button
+              onClick={handleCreateTask}
+              className="bg-wellness-sage hover:bg-wellness-sage-dark text-white px-6"
+            >
+              Create
+            </Button>
+          </div>
+        </DialogHeader>
+
+        <div className="space-y-6">
+          {/* Task Name Input */}
+          <Input
+            placeholder="New Task"
+            value={taskName}
+            onChange={(e) => setTaskName(e.target.value)}
+            className="text-center text-lg font-medium border-wellness-sage/30 focus:border-wellness-sage"
+          />
+
+          {/* Color Selector */}
+          <div className="flex justify-center gap-3">
+            {colors.map((color) => (
+              <button
+                key={color}
+                onClick={() => setSelectedColor(color)}
+                className={`w-10 h-10 rounded-full border-2 transition-all ${
+                  selectedColor === color 
+                    ? "border-wellness-sage-dark scale-110 shadow-lg" 
+                    : "border-gray-300 hover:scale-105"
+                }`}
+                style={{ backgroundColor: color }}
+              >
+                {selectedColor === color && (
+                  <Check className="h-5 w-5 text-white mx-auto" />
+                )}
+              </button>
+            ))}
           </div>
 
-          {/* Task Color */}
-          <div className="space-y-2">
-            <Label>Task Color</Label>
-            <div className="flex gap-2 flex-wrap">
-              {taskColors.map(color => (
-                <button
-                  key={color.value}
-                  onClick={() => setSelectedColor(color.value)}
-                  className={`w-8 h-8 rounded-full border-2 transition-all ${
-                    selectedColor === color.value 
-                      ? 'border-gray-400 scale-110' 
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                  style={{ backgroundColor: color.value }}
-                  title={color.name}
-                />
-              ))}
+          {/* Options */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-wellness-sage/20">
+              <div className="flex items-center gap-3">
+                <Calendar className="h-5 w-5 text-wellness-sage-dark" />
+                <span className="font-medium text-wellness-sage-dark">Date</span>
+              </div>
+              <Badge variant="outline" className="text-wellness-sage-dark">
+                {date === "Today" ? getCurrentDate() : date} &gt;
+              </Badge>
+            </div>
+
+            <div 
+              onClick={() => setShowRepeatOptions(true)}
+              className="flex items-center justify-between p-3 bg-white rounded-lg border border-wellness-sage/20 cursor-pointer hover:bg-wellness-sage/5"
+            >
+              <div className="flex items-center gap-3">
+                <Repeat className="h-5 w-5 text-wellness-sage-dark" />
+                <span className="font-medium text-wellness-sage-dark">Repeat</span>
+              </div>
+              <Badge variant="outline" className="text-wellness-sage-dark">
+                {repeat} &gt;
+              </Badge>
+            </div>
+
+            <div 
+              onClick={() => setShowTimeOptions(true)}
+              className="flex items-center justify-between p-3 bg-white rounded-lg border border-wellness-sage/20 cursor-pointer hover:bg-wellness-sage/5"
+            >
+              <div className="flex items-center gap-3">
+                <Clock className="h-5 w-5 text-wellness-sage-dark" />
+                <span className="font-medium text-wellness-sage-dark">Time</span>
+              </div>
+              <Badge variant="outline" className="text-wellness-sage-dark">
+                {timeEnabled ? formatTime(time) : "Anytime"} &gt;
+              </Badge>
+            </div>
+
+            <div 
+              onClick={() => setShowReminderOptions(true)}
+              className="flex items-center justify-between p-3 bg-white rounded-lg border border-wellness-sage/20 cursor-pointer hover:bg-wellness-sage/5"
+            >
+              <div className="flex items-center gap-3">
+                <Bell className="h-5 w-5 text-wellness-sage-dark" />
+                <span className="font-medium text-wellness-sage-dark">Reminder</span>
+              </div>
+              <Badge variant="outline" className="text-wellness-sage-dark">
+                {reminder} &gt;
+              </Badge>
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-3 pt-4">
-            <Button
-              variant="outline"
-              onClick={handleClose}
-              className="flex-1 border-gray-300 hover:bg-gray-50"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSave}
-              disabled={!taskName.trim()}
-              className="flex-1 bg-wellness-sage hover:bg-wellness-sage-dark text-white"
-            >
-              {editingTask ? 'Update Task' : 'Create Task'}
-            </Button>
-          </div>
+          {/* Create Button */}
+          <Button
+            onClick={handleCreateTask}
+            className="w-full bg-wellness-sage hover:bg-wellness-sage-dark text-white py-3 text-lg font-medium"
+          >
+            Create Task
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
   );
 };
+
+export default CreateTaskDialog;

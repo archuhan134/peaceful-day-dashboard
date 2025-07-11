@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Heart, Calendar, List, Target, CheckCircle, Repeat, Bell, Sparkles, Sun, Moon, Save, User, Plus } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { MoodSelector } from "@/components/dashboard/MoodSelector";
@@ -18,6 +18,20 @@ const Index = () => {
   // State for panel visibility
   const [showMoodSelector, setShowMoodSelector] = useState(false);
   const [showCreateTask, setShowCreateTask] = useState(false);
+  
+  // Plus icon dragging state
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
+  const dragRef = useRef<HTMLDivElement>(null);
+  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
+  
+  // Load saved position from localStorage
+  useEffect(() => {
+    const savedPosition = localStorage.getItem('plusIconPosition');
+    if (savedPosition) {
+      setDragPosition(JSON.parse(savedPosition));
+    }
+  }, []);
 
   // LocalStorage states
   const [todayMood, setTodayMood] = useLocalStorage("todayMood", "😊");
@@ -124,6 +138,58 @@ const Index = () => {
     }
   };
 
+  // Plus icon drag handlers
+  const handleDragStart = (e: React.TouchEvent | React.MouseEvent) => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+    }
+    
+    const startDrag = () => {
+      setIsDragging(true);
+      const rect = (e.target as Element).getBoundingClientRect();
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+      setDragPosition({
+        x: clientX - rect.width / 2,
+        y: clientY - rect.height / 2
+      });
+    };
+
+    if ('touches' in e) {
+      // Mobile long press
+      longPressTimer.current = setTimeout(startDrag, 500);
+    } else {
+      // Desktop immediate drag
+      startDrag();
+    }
+  };
+
+  const handleDragMove = (e: React.TouchEvent | React.MouseEvent) => {
+    if (!isDragging) return;
+    
+    e.preventDefault();
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    
+    setDragPosition({
+      x: clientX - 24, // Center the icon
+      y: clientY - 24
+    });
+  };
+
+  const handleDragEnd = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+    
+    if (isDragging) {
+      setIsDragging(false);
+      // Save position to localStorage
+      localStorage.setItem('plusIconPosition', JSON.stringify(dragPosition));
+    }
+  };
+
   const handleCreateTask = (newTask: any) => {
     // Add the new task to the tasks list
     const existingTasks = JSON.parse(localStorage.getItem("tasks") || "[]");
@@ -170,25 +236,33 @@ const Index = () => {
         
         {/* Draggable Plus Icon positioned above the bottom navigation */}
         <div 
-          className="fixed bottom-20 right-4 flex flex-col gap-3 z-50 cursor-move"
-          draggable
-          onDragStart={(e) => {
-            e.dataTransfer.effectAllowed = "move";
+          ref={dragRef}
+          className="fixed z-50 select-none"
+          style={{
+            left: dragPosition.x ? `${dragPosition.x}px` : 'auto',
+            top: dragPosition.y ? `${dragPosition.y}px` : 'auto',
+            right: dragPosition.x ? 'auto' : '1rem',
+            bottom: dragPosition.y ? 'auto' : '5rem',
+            cursor: isDragging ? 'grabbing' : 'grab'
           }}
-          onDrag={(e) => {
-            if (e.clientX === 0 && e.clientY === 0) return; // Ignore invalid coordinates
-            const element = e.currentTarget;
-            element.style.left = `${e.clientX - 24}px`; // Center the icon
-            element.style.top = `${e.clientY - 24}px`;
-            element.style.right = 'auto';
-            element.style.bottom = 'auto';
-          }}
+          onMouseDown={handleDragStart}
+          onMouseMove={handleDragMove}
+          onMouseUp={handleDragEnd}
+          onTouchStart={handleDragStart}
+          onTouchMove={handleDragMove}
+          onTouchEnd={handleDragEnd}
         >
           <Button
             variant="outline"
             size="icon"
-            onClick={() => setShowCreateTask(true)}
-            className="bg-wellness-sage hover:bg-wellness-sage-dark text-white border-0 w-12 h-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 pointer-events-auto"
+            onClick={(e) => {
+              if (!isDragging) {
+                setShowCreateTask(true);
+              }
+            }}
+            className={`bg-wellness-sage hover:bg-wellness-sage-dark text-white border-0 w-12 h-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 ${
+              isDragging ? 'scale-110 shadow-2xl' : 'hover:scale-105'
+            }`}
           >
             <Plus className="h-6 w-6" />
           </Button>

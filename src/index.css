@@ -117,6 +117,8 @@ All colors MUST be HSL.
     -webkit-text-size-adjust: 100%;
     -moz-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    /* Add bottom padding to prevent navigation overlap */
+    padding-bottom: 80px;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -155,21 +157,33 @@ All colors MUST be HSL.
     @apply backdrop-blur-sm bg-white/80 border border-white/20;
   }
   
-  /* Darker wellness buttons by default */
-  .bg-wellness-sage {
-    @apply bg-wellness-sage hover:bg-wellness-sage-dark;
+  /* Wellness button components */
+  .wellness-button-sage {
+    background-color: hsl(var(--wellness-sage));
+  }
+  .wellness-button-sage:hover {
+    background-color: hsl(var(--wellness-sage-dark));
   }
   
-  .bg-wellness-sky {
-    @apply bg-wellness-sky hover:bg-wellness-sky-dark;
+  .wellness-button-sky {
+    background-color: hsl(var(--wellness-sky));
+  }
+  .wellness-button-sky:hover {
+    background-color: hsl(var(--wellness-sky-dark));
   }
   
-  .bg-wellness-lavender {
-    @apply bg-wellness-lavender hover:bg-wellness-lavender-dark;
+  .wellness-button-lavender {
+    background-color: hsl(var(--wellness-lavender));
+  }
+  .wellness-button-lavender:hover {
+    background-color: hsl(var(--wellness-lavender-dark));
   }
   
-  .bg-wellness-peach {
-    @apply bg-wellness-peach hover:bg-wellness-peach-dark;
+  .wellness-button-peach {
+    background-color: hsl(var(--wellness-peach));
+  }
+  .wellness-button-peach:hover {
+    background-color: hsl(var(--wellness-peach-dark));
   }
 }
 

@@ -72,21 +72,22 @@ const Planning = () => {
         task.id === id ? { ...task, completed: newCompletedStatus } : task
       ));
       
-      // Handle completed tasks tracking
-      if (newCompletedStatus) {
-        const completedTask = {
-          id: taskToToggle.id,
-          name: taskToToggle.name,
-          completedAt: new Date().toISOString(),
-          timestamp: new Date().toLocaleString()
-        };
-        setCompletedTasks(prev => [completedTask, ...prev].slice(0, 50)); // Keep last 50 completed tasks
-        toast.success(`Task "${taskToToggle.name}" completed! 🎉`);
-      } else {
-        // Remove from completed tasks if unchecked
-        setCompletedTasks(prev => prev.filter((completed: any) => completed.id !== id));
-        toast.success(`Task "${taskToToggle.name}" moved back to pending`);
-      }
+      // Save the combined tasks to localStorage
+      const allUpdatedTasks = [...tasks, ...dashboardTasks].map(task => 
+        task.id === id ? { ...task, completed: newCompletedStatus } : task
+      );
+      
+      // Update individual storages
+      const updatedLocalTasks = allUpdatedTasks.filter(task => tasks.some(t => t.id === task.id));
+      const updatedDashboardTasks = allUpdatedTasks.filter(task => dashboardTasks.some((t: any) => t.id === task.id));
+      
+      localStorage.setItem("local_tasks", JSON.stringify(updatedLocalTasks));
+      localStorage.setItem("tasks", JSON.stringify(updatedDashboardTasks));
+      
+      toast.success(newCompletedStatus ? 
+        `Task "${taskToToggle.name}" completed! 🎉` : 
+        `Task "${taskToToggle.name}" moved back to pending`
+      );
     }
   };
 
@@ -154,8 +155,12 @@ const Planning = () => {
     setRoutines(prev => prev.filter(routine => routine.id !== id));
   };
 
-  // Combine all tasks for display
-  const allTasks = [...tasks, ...dashboardTasks];
+  // Combine all tasks for display - remove duplicates by ID
+  const combinedTasks = [...tasks, ...dashboardTasks];
+  const uniqueTasks = combinedTasks.filter((task, index, self) => 
+    index === self.findIndex(t => t.id === task.id)
+  );
+  const allTasks = uniqueTasks;
   const pendingTasks = allTasks.filter(t => !t.completed);
   const completedTasksList = allTasks.filter(t => t.completed);
   const completionRate = allTasks.length > 0 ? Math.round((completedTasksList.length / allTasks.length) * 100) : 0;

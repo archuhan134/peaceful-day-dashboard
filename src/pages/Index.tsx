@@ -178,14 +178,6 @@ const Index = () => {
           >
             <Plus className="h-6 w-6" />
           </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => navigate('/profile')}
-            className="glass-morphism border-wellness-sage/30 hover:bg-wellness-sage/10 w-12 h-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
-          >
-            <User className="h-5 w-5 text-wellness-sage-dark" />
-          </Button>
         </div>
       </div>
 

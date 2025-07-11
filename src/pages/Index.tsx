@@ -24,12 +24,16 @@ const Index = () => {
   const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
   const dragRef = useRef<HTMLDivElement>(null);
   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
+  const lastPositionRef = useRef({ x: 0, y: 0 });
   
   // Load saved position from localStorage
   useEffect(() => {
     const savedPosition = localStorage.getItem('plusIconPosition');
     if (savedPosition) {
-      setDragPosition(JSON.parse(savedPosition));
+      const position = JSON.parse(savedPosition);
+      setDragPosition(position);
+      lastPositionRef.current = position;
     }
   }, []);
 
@@ -138,25 +142,49 @@ const Index = () => {
     }
   };
 
-  // Plus icon drag handlers
+  // Smooth drag handlers with requestAnimationFrame
+  const updatePosition = (newPosition: { x: number; y: number }) => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+    
+    animationFrameRef.current = requestAnimationFrame(() => {
+      setDragPosition(newPosition);
+      lastPositionRef.current = newPosition;
+    });
+  };
+
   const handleDragStart = (e: React.TouchEvent | React.MouseEvent) => {
+    e.preventDefault();
+    
     if (longPressTimer.current) {
       clearTimeout(longPressTimer.current);
     }
     
     const startDrag = () => {
       setIsDragging(true);
-      const rect = (e.target as Element).getBoundingClientRect();
       const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
       const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-      setDragPosition({
-        x: clientX - rect.width / 2,
-        y: clientY - rect.height / 2
-      });
+      
+      const newPosition = {
+        x: clientX - 24, // Center the icon
+        y: clientY - 24
+      };
+      
+      updatePosition(newPosition);
+      
+      // Add global event listeners for smooth tracking
+      if ('touches' in e) {
+        document.addEventListener('touchmove', handleGlobalTouchMove, { passive: false });
+        document.addEventListener('touchend', handleGlobalTouchEnd, { once: true });
+      } else {
+        document.addEventListener('mousemove', handleGlobalMouseMove);
+        document.addEventListener('mouseup', handleGlobalMouseEnd, { once: true });
+      }
     };
 
     if ('touches' in e) {
-      // Mobile long press
+      // Mobile long press (500ms)
       longPressTimer.current = setTimeout(startDrag, 500);
     } else {
       // Desktop immediate drag
@@ -164,17 +192,37 @@ const Index = () => {
     }
   };
 
-  const handleDragMove = (e: React.TouchEvent | React.MouseEvent) => {
+  const handleGlobalMouseMove = (e: MouseEvent) => {
     if (!isDragging) return;
     
     e.preventDefault();
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    const newPosition = {
+      x: e.clientX - 24,
+      y: e.clientY - 24
+    };
+    updatePosition(newPosition);
+  };
+
+  const handleGlobalTouchMove = (e: TouchEvent) => {
+    if (!isDragging) return;
     
-    setDragPosition({
-      x: clientX - 24, // Center the icon
-      y: clientY - 24
-    });
+    e.preventDefault();
+    const touch = e.touches[0];
+    const newPosition = {
+      x: touch.clientX - 24,
+      y: touch.clientY - 24
+    };
+    updatePosition(newPosition);
+  };
+
+  const handleGlobalMouseEnd = () => {
+    document.removeEventListener('mousemove', handleGlobalMouseMove);
+    handleDragEnd();
+  };
+
+  const handleGlobalTouchEnd = () => {
+    document.removeEventListener('touchmove', handleGlobalTouchMove);
+    handleDragEnd();
   };
 
   const handleDragEnd = () => {
@@ -183,12 +231,31 @@ const Index = () => {
       longPressTimer.current = null;
     }
     
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+    
     if (isDragging) {
       setIsDragging(false);
       // Save position to localStorage
-      localStorage.setItem('plusIconPosition', JSON.stringify(dragPosition));
+      localStorage.setItem('plusIconPosition', JSON.stringify(lastPositionRef.current));
     }
   };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (longPressTimer.current) {
+        clearTimeout(longPressTimer.current);
+      }
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      document.removeEventListener('mousemove', handleGlobalMouseMove);
+      document.removeEventListener('touchmove', handleGlobalTouchMove);
+    };
+  }, []);
 
   const handleCreateTask = (newTask: any) => {
     // Add the new task to the tasks list
@@ -246,11 +313,7 @@ const Index = () => {
             cursor: isDragging ? 'grabbing' : 'grab'
           }}
           onMouseDown={handleDragStart}
-          onMouseMove={handleDragMove}
-          onMouseUp={handleDragEnd}
           onTouchStart={handleDragStart}
-          onTouchMove={handleDragMove}
-          onTouchEnd={handleDragEnd}
         >
           <Button
             variant="outline"

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -43,6 +42,8 @@ const Planning = () => {
     }
   ]);
 
+  const [completedTasks, setCompletedTasks] = useLocalStorage("tasksCompleted", []);
+
   const handleAddTask = () => {
     if (newTask.trim()) {
       const task = {
@@ -56,14 +57,37 @@ const Planning = () => {
   };
 
   const handleTaskToggle = (id: string) => {
-    setTasks(prev => prev.map(task => 
-      task.id === id ? { ...task, completed: !task.completed } : task
-    ));
+    const taskToToggle = tasks.find(task => task.id === id) || dashboardTasks.find((task: any) => task.id === id);
     
-    // Also update dashboard tasks if it exists there
-    setDashboardTasks(prev => prev.map((task: any) => 
-      task.id === id ? { ...task, completed: !task.completed } : task
-    ));
+    if (taskToToggle) {
+      const newCompletedStatus = !taskToToggle.completed;
+      
+      // Update local tasks
+      setTasks(prev => prev.map(task => 
+        task.id === id ? { ...task, completed: newCompletedStatus } : task
+      ));
+      
+      // Update dashboard tasks
+      setDashboardTasks(prev => prev.map((task: any) => 
+        task.id === id ? { ...task, completed: newCompletedStatus } : task
+      ));
+      
+      // Handle completed tasks tracking
+      if (newCompletedStatus) {
+        const completedTask = {
+          id: taskToToggle.id,
+          name: taskToToggle.name,
+          completedAt: new Date().toISOString(),
+          timestamp: new Date().toLocaleString()
+        };
+        setCompletedTasks(prev => [completedTask, ...prev].slice(0, 50)); // Keep last 50 completed tasks
+        toast.success(`Task "${taskToToggle.name}" completed! 🎉`);
+      } else {
+        // Remove from completed tasks if unchecked
+        setCompletedTasks(prev => prev.filter((completed: any) => completed.id !== id));
+        toast.success(`Task "${taskToToggle.name}" moved back to pending`);
+      }
+    }
   };
 
   const handleDeleteTask = (id: string) => {
@@ -133,8 +157,8 @@ const Planning = () => {
   // Combine all tasks for display
   const allTasks = [...tasks, ...dashboardTasks];
   const pendingTasks = allTasks.filter(t => !t.completed);
-  const completedTasks = allTasks.filter(t => t.completed);
-  const completionRate = allTasks.length > 0 ? Math.round((completedTasks.length / allTasks.length) * 100) : 0;
+  const completedTasksList = allTasks.filter(t => t.completed);
+  const completionRate = allTasks.length > 0 ? Math.round((completedTasksList.length / allTasks.length) * 100) : 0;
 
   const getMotivationalMessage = () => {
     if (completionRate === 100) return "Perfect day! You've accomplished everything! 🎉";
@@ -243,7 +267,7 @@ const Planning = () => {
               <p className="text-xs sm:text-sm text-wellness-sage-dark/70">Total Tasks</p>
             </div>
             <div className="text-center space-y-1">
-              <div className="text-2xl sm:text-3xl font-bold text-wellness-lavender-dark">{completedTasks.length}</div>
+              <div className="text-2xl sm:text-3xl font-bold text-wellness-lavender-dark">{completedTasksList.length}</div>
               <p className="text-xs sm:text-sm text-wellness-sage-dark/70">Completed</p>
             </div>
             <div className="text-center space-y-1">
@@ -511,12 +535,12 @@ const Planning = () => {
               <div className="p-2 rounded-lg bg-wellness-peach/20">
                 <Sparkles className="h-5 w-5" />
               </div>
-              Completed Tasks ({completedTasks.length})
+              Completed Tasks ({completedTasksList.length})
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 min-h-[300px]">
-            {completedTasks.length > 0 ? (
-              completedTasks.map((task) => (
+            {completedTasksList.length > 0 ? (
+              completedTasksList.map((task) => (
                 <div
                   key={task.id}
                   className="flex items-center gap-3 p-4 rounded-xl bg-wellness-peach/10 border border-wellness-peach/20 opacity-90"

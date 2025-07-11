@@ -9,7 +9,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { MoodSelector } from "@/components/dashboard/MoodSelector";
-import CreateTaskDialog from "@/components/dashboard/CreateTaskDialog";
+import { CreateTaskDialog } from "@/components/dashboard/CreateTaskDialog";
 import AppHeader from "@/components/AppHeader";
 import { toast } from "sonner";
 
@@ -407,7 +407,7 @@ const Index = () => {
             ))}
             <Button 
               className="w-full mt-6 bg-wellness-sage hover:bg-wellness-sage-dark text-white shadow-md hover:shadow-lg transition-all"
-              onClick={() => navigate('/planning')}
+              onClick={() => navigate('/habits')}
             >
               <List className="h-4 w-4 mr-2" />
               View All Tasks
@@ -503,7 +503,7 @@ const Index = () => {
       <CreateTaskDialog
         isOpen={showCreateTask}
         onClose={() => setShowCreateTask(false)}
-        onTaskCreate={handleCreateTask}
+        onSave={handleCreateTask}
       />
     </div>
   );

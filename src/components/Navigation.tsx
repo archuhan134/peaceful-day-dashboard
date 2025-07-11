@@ -33,7 +33,7 @@ const Navigation = () => {
     { name: "Profile", path: "/profile", icon: User },
   ];
 
-  // Mobile bottom navigation items
+  // Mobile bottom navigation items with modern filled icons
   const bottomNavItems = [
     { name: "Routine", path: "/", icon: CheckSquare },
     { name: "Inspire", path: "/inspire", icon: Lightbulb },
@@ -126,26 +126,49 @@ const Navigation = () => {
         </div>
       </nav>
 
-      {/* Mobile Bottom Navigation */}
+      {/* Modern Mobile Bottom Navigation */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40">
-        <div className="bg-white/95 backdrop-blur-md border-t border-wellness-sage/20 px-4 py-2">
-          <div className="flex justify-around items-center">
+        <div className="bg-white/95 backdrop-blur-md border-t border-wellness-sage/20 px-2 py-2 rounded-t-3xl shadow-2xl">
+          <div className="flex justify-around items-center max-w-md mx-auto">
             {bottomNavItems.map((item) => {
               const Icon = item.icon;
+              const active = isActive(item.path);
               return (
                 <Link
                   key={item.name}
                   to={item.path}
-                  className={`flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-all duration-200 ${
-                    isActive(item.path)
-                      ? 'text-wellness-sage-dark bg-wellness-sage/10'
-                      : 'text-wellness-sage-dark/60 hover:text-wellness-sage-dark hover:bg-wellness-sage/5'
+                  className={`flex flex-col items-center gap-1 py-3 px-4 rounded-2xl transition-all duration-300 relative ${
+                    active
+                      ? 'text-wellness-sage-dark bg-gradient-to-b from-wellness-sage/20 to-wellness-sky/10 scale-110 shadow-lg'
+                      : 'text-wellness-sage-dark/60 hover:text-wellness-sage-dark hover:bg-wellness-sage/5 hover:scale-105'
                   }`}
                 >
-                  <Icon className={`h-5 w-5 ${
-                    isActive(item.path) ? 'text-wellness-sage' : ''
-                  }`} />
-                  <span className="text-xs font-medium">{item.name}</span>
+                  {/* Active indicator */}
+                  {active && (
+                    <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-gradient-to-r from-wellness-sage to-wellness-sky rounded-full shadow-md" />
+                  )}
+                  
+                  <Icon 
+                    className={`h-6 w-6 transition-all duration-300 ${
+                      active 
+                        ? 'text-wellness-sage drop-shadow-sm' 
+                        : 'group-hover:text-wellness-sage'
+                    }`} 
+                    fill={active ? "currentColor" : "none"}
+                    strokeWidth={active ? 1.5 : 2}
+                  />
+                  <span className={`text-xs font-medium transition-all duration-300 ${
+                    active 
+                      ? 'text-wellness-sage-dark font-semibold' 
+                      : 'text-wellness-sage-dark/70'
+                  }`}>
+                    {item.name}
+                  </span>
+                  
+                  {/* Glow effect for active tab */}
+                  {active && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-wellness-sage/10 to-wellness-sky/10 rounded-2xl blur-xl -z-10" />
+                  )}
                 </Link>
               );
             })}
@@ -157,7 +180,7 @@ const Navigation = () => {
       <div className="hidden lg:block w-64 flex-shrink-0" />
       
       {/* Spacer for mobile bottom navigation */}
-      <div className="lg:hidden h-16" />
+      <div className="lg:hidden h-20" />
     </>
   );
 };

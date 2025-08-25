@@ -63,24 +63,10 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				wellness: {
-					sage: {
-						DEFAULT: 'hsl(var(--wellness-sage))',
-						dark: 'hsl(var(--wellness-sage-dark))'
-					},
-					sky: {
-						DEFAULT: 'hsl(var(--wellness-sky))',
-						dark: 'hsl(var(--wellness-sky-dark))'
-					},
-					lavender: {
-						DEFAULT: 'hsl(var(--wellness-lavender))',
-						dark: 'hsl(var(--wellness-lavender-dark))'
-					},
-					peach: {
-						DEFAULT: 'hsl(var(--wellness-peach))',
-						dark: 'hsl(var(--wellness-peach-dark))'
-					}
-				}
+				'accent-pink': 'hsl(var(--accent-pink))',
+				'accent-green': 'hsl(var(--accent-green))',
+				'text-gray': 'hsl(var(--text-gray))',
+				'text-muted': 'hsl(var(--text-muted))'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
